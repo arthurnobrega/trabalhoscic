@@ -4,7 +4,6 @@
 
 #define NOME_ARQ "arquivo.txt"
 #define TAM_MAX 32
-#define CAR_ESP '$'
 
 /** Estrutura do nó da árvore. */
 struct no_arv {
@@ -19,7 +18,8 @@ struct no_arv {
 
 typedef struct no_arv no_arv;
 
-no_arv *construirLista(FILE *arq);
+no_arv *construirLista(FILE *arq, int *tamanho);
+no_arv *ordenarLista(no_arv *inicio, int tamanho);
 void mostrarLista(no_arv *pinicio);
 no_arv *construirArvore(no_arv *pinicio);
 void mostrarArvore(no_arv *arv);
@@ -28,16 +28,17 @@ void mostrarArvore(no_arv *arv);
 int main() {
     FILE *arq;
     no_arv *listaArvore;
+    int tamanho;
 
-    listaArvore = construirLista(arq);
+    listaArvore = construirLista(arq, &tamanho);
     mostrarLista(listaArvore);
-    listaArvore = construirArvore(listaArvore);
-    mostrarArvore(listaArvore);
+    /*listaArvore = construirArvore(listaArvore);
+    mostrarArvore(listaArvore);*/
 
     return 0;
 }
 
-no_arv *construirLista(FILE *arq) {
+no_arv *construirLista(FILE *arq, int *tamanho) {
     int achou = 0;
     char ch;
     no_arv *pinicio, *pfim, *paux;
@@ -56,6 +57,7 @@ no_arv *construirLista(FILE *arq) {
     paux->prox = NULL;
     paux->esq = NULL;
     paux->dir = NULL;
+    *tamanho = 1;
 
     /* Adiciona os outros elementos à lista. */
     while ((ch = fgetc(arq)) != EOF) {
@@ -80,24 +82,49 @@ no_arv *construirLista(FILE *arq) {
 	    pfim->prox = paux;
 	    paux->esq = NULL;
 	    paux->dir = NULL;
+	    *tamanho += 1;
 	} else {
 	    achou = 0;
 	}
 
     }
 
-    /* Ordena a lista. */
+    return ordenarLista(pinicio, *tamanho);
+}
 
-    return pinicio;
+no_arv *ordenarLista(no_arv *inicio, int tamanho) {
+    int i = 0, j = 0;
+    no_arv *paux, *ptroca;
+    for (i = 0; i <= tamanho - 1; i++) {
+	printf("%d\n", tamanho);
+	printf("%d\n", i);
+	paux = inicio;
+	for (j = 0; j <= tamanho - 2; i++) {
+	    printf("foi");
+	    ptroca = paux->prox;
+	    if ((paux->frequencia > ptroca->frequencia) || ((paux->frequencia == ptroca->frequencia) && (paux->caractere > ptroca->caractere))) {
+		paux->prox = ptroca->prox;
+		ptroca->ant = paux->ant;
+		ptroca->prox->ant = paux;
+		ptroca->prox = paux;
+		paux->ant->prox = ptroca;
+		paux->ant = ptroca;
+	    }
+	    paux = paux->prox;
+	}
+    }
+    return inicio;
 }
 
 void mostrarLista(no_arv *pinicio) {
     no_arv *paux = pinicio;
-    printf("---Tabela de Frequências---\n");
+    printf("\n\n---Tabela de Frequências---\n");
     while (paux != NULL) {
-	printf("%c : %d\n",paux->caractere, paux->frequencia);
+	printf("|%c : %d| -> ",paux->caractere, paux->frequencia);
+	paux = paux->prox;
     }
-    printf("---------------------------\n");
+    printf("NULL\n");
+    printf("---------------------------\n\n\n");
 }
 
 no_arv *construirArvore(no_arv *pinicio) {
@@ -114,7 +141,7 @@ no_arv *construirArvore(no_arv *pinicio) {
 	paux2->ant = NULL;
 	paux2->prox->ant = NULL;
 	paux2->prox = NULL;
-	pnovo->caractere = CAR_ESP;
+	
 	pnovo->frequencia = paux->frequencia + paux2->frequencia;
 	
 	/* Ordena a lista. */
