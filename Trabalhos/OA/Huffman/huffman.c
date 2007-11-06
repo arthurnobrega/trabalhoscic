@@ -1,128 +1,126 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define NOME_ARQ "arquivo.txt"
+#define TAM_MAX 32
+#define CAR_ESP '$'
 
-/** Estrutura. */
-struct no_arv{
+/** Estrutura do nó da árvore. */
+struct no_arv {
     char caractere;
     int frequencia;
+    struct no_arv *ant;
+    struct no_arv *prox;
     struct no_arv *esq;
     struct no_arv *dir;
 };
 
+
 typedef struct no_arv no_arv;
 
-no_arv *construirVetor(FILE *arq, int *tamanho);
-int compararNos(const no_arv* a, const no_arv* b);
-void mostrarVetor(no_arv *vetor, int tamanho);
-no_arv *construirArvore(no_arv *vetor, int tamanho);
-void mostrarArvore(no_arv *raiz);
+no_arv *construirLista(FILE *arq);
+void mostrarLista(no_arv *pinicio);
+no_arv *construirArvore(no_arv *pinicio);
+void mostrarArvore(no_arv *arv);
 
-int main(){
+
+int main() {
     FILE *arq;
-    no_arv *vetorArvore;
-    int tamanho = 0;
+    no_arv *listaArvore;
 
-    vetorArvore = construirVetor(arq, &tamanho);
-    mostrarVetor(vetorArvore, tamanho);
-    vetorArvore = construirArvore(vetorArvore, tamanho);
-    mostrarArvore(vetorArvore);
+    listaArvore = construirLista(arq);
+    mostrarLista(listaArvore);
+    listaArvore = construirArvore(listaArvore);
+    mostrarArvore(listaArvore);
 
     return 0;
 }
 
-no_arv *construirVetor(FILE *arq, int *tamanho) {
-    int achou = 0, i = 0;
+no_arv *construirLista(FILE *arq) {
+    int achou = 0;
     char ch;
-    no_arv *vetor, *pont;
+    no_arv *pinicio, *pfim, *paux;
 
     /* Abre o arquivo. */
     arq = fopen(NOME_ARQ, "r");
 
-    *tamanho = 1;
-    vetor = (no_arv *) calloc(1, sizeof(no_arv));
-    pont = vetor;
+    /* Cria o primeiro elemento da lista. */
+    pinicio = (no_arv *) calloc(1, sizeof(no_arv));
+    pfim = pinicio;
+    paux = pinicio;
     ch = fgetc(arq);
-    pont->caractere = ch;
-    pont->frequencia = 1;
-    pont->esq = NULL;
-    pont->dir = NULL;
+    paux->caractere = ch;
+    paux->frequencia = 1;
+    paux->ant = NULL;
+    paux->prox = NULL;
+    paux->esq = NULL;
+    paux->dir = NULL;
+
+    /* Adiciona os outros elementos à lista. */
     while ((ch = fgetc(arq)) != EOF) {
-	for (i = 0; i <= *tamanho - 1; i++) {
-	    pont = &vetor[i];
-	    if (pont->caractere == ch) {
-		pont->frequencia += 1;
+	paux = pinicio;
+	while (paux != NULL) {
+	    /* Se o caractere já existir na lista, soma 1 na frequência. */
+	    if (paux->caractere == ch) {
+		paux->frequencia += 1;
 		achou = 1;
 		break;
 	    }
+	    pfim = paux;
+	    paux = paux->prox;
 	}
+	/* Se é o caractere não existir na lista, o adiciona. */
 	if (achou == 0) {
-	    *tamanho += 1;
-	    vetor = (no_arv *) realloc(vetor, *tamanho * sizeof(no_arv));
-	    pont = &vetor[*tamanho - 1];
-	    pont->caractere = ch;
-	    pont->frequencia = 1;
-	    pont->esq = NULL;
-	    pont->dir = NULL;
+	    paux = (no_arv *) calloc(1, sizeof(no_arv));
+	    paux->caractere = ch;
+	    paux->frequencia = 1;
+	    paux->ant = pfim;
+	    paux->prox = NULL;
+	    pfim->prox = paux;
+	    paux->esq = NULL;
+	    paux->dir = NULL;
 	} else {
 	    achou = 0;
 	}
 
     }
 
-    qsort(vetor, (size_t) *tamanho, sizeof(no_arv), (void*) compararNos);
-    return vetor;
+    /* Ordena a lista. */
+
+    return pinicio;
 }
 
-int compararNos(const no_arv* a, const no_arv* b) {
-    return a->frequencia - b->frequencia;
-}
-
-void mostrarVetor(no_arv *vetor, int tamanho) {
-    int i = 0;
+void mostrarLista(no_arv *pinicio) {
+    no_arv *paux = pinicio;
     printf("---Tabela de Frequências---\n");
-    for (i = 0; i <= tamanho - 1; i++) {
-	printf("%c : %d \n",vetor[i].caractere, vetor[i].frequencia);
+    while (paux != NULL) {
+	printf("%c : %d\n",paux->caractere, paux->frequencia);
     }
     printf("---------------------------\n");
 }
 
-no_arv *construirArvore(no_arv *vetor, int tamanho) {
-    no_arv *pont1, *pont2, *pont3, *pont4;
-    int i = 0, tam_aux = tamanho - 1;
+no_arv *construirArvore(no_arv *pinicio) {
+    no_arv *paux, *paux2, *pnovo;
 
-    while (tam_aux > 0) {
-	i = 0;
-	pont1 = &vetor[i];
-	while ((pont1->frequencia) < 0) {
-	    i++;
-	    pont1 = &vetor[i];
-	}
-	pont2 = &vetor[i + 1];
-	pont3 = (no_arv*) calloc (1, sizeof(no_arv));
-	pont4 = (no_arv*) calloc (1, sizeof(no_arv));
+    while (paux != NULL) {
+	paux = pinicio;
+	paux2 = paux->prox;
+	pnovo = (no_arv *) calloc (1, sizeof(no_arv));
 	
-	pont3->caractere = pont1->caractere;
-	pont3->frequencia = pont1->frequencia;
-	pont3->esq = pont1->esq;
-	pont3->dir = pont1->dir;
+	pnovo->esq = paux;
+	paux->prox = NULL;
+	pnovo->dir = paux2;
+	paux2->ant = NULL;
+	paux2->prox->ant = NULL;
+	paux2->prox = NULL;
+	pnovo->caractere = CAR_ESP;
+	pnovo->frequencia = paux->frequencia + paux2->frequencia;
 	
-	pont4->caractere = pont2->caractere;
-	pont4->frequencia = pont2->frequencia;
-	pont4->esq = pont2->esq;
-	pont4->dir = pont2->dir;
-	
-	pont2->esq = pont3;
-	pont2->dir = pont4;
-	pont2->caractere = '$';
-	pont2->frequencia = pont3->frequencia + pont4->frequencia;
-	pont1->frequencia = -1;
-	qsort(vetor, (size_t) tamanho, sizeof(no_arv), (void*) compararNos);
-	tam_aux--;
+	/* Ordena a lista. */
     }
 
-    return &vetor[tamanho - 1];
+    return pinicio;
 }
 
 void mostrarArvore(no_arv *arv) {
@@ -135,3 +133,27 @@ void mostrarArvore(no_arv *arv) {
 	printf("NULL\n");
     }
 }
+/*
+el_cod *gerarListaCodigos(no_arv *arv, int tamanho) {
+    el_cod *cod;
+    int indice;
+    char codigo[TAM_MAX];
+
+    cod = calloc(tamanho, sizeof(el_cod));
+    preencherCodigos(cod, arv, &indice, codigo);
+    return cod;
+}
+
+void preencherCodigos(el_cod *cod, no_arv *arv, int *indice, char codigo[TAM_MAX]) {
+    if ((arv != NULL &&) {
+	 if (arv->caractere != CAR_ESP)) {
+	    cod[*indice].codigo = codigo;
+	    *indice += 1;
+	    return;
+	 } else {
+	    preencherCodigos(cod, arv->esq, indice, strcat(codigo, "0"));
+	    preencherCodigos(cod, arv->dir, indice, strcat(codigo, "1"));
+	}
+    }
+}*/
+
