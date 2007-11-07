@@ -21,7 +21,7 @@ struct no_arv {
 
 typedef struct no_arv no_arv;
 
-no_arv *construirLista(FILE *arq, int *tamanho);
+no_arv *construirLista(char *nomeArq, int *tamanho);
 no_arv *ordenarLista(no_arv *pinicio, int tamanho);
 void mostrarLista(no_arv *pinicio);
 no_arv *construirArvore(no_arv *pinicio, int tamanho);
@@ -32,28 +32,24 @@ void mostrarTabela(no_arv *arv, int tamanho);
 void mostrarCodigos(no_arv *arv);
 
 int main() {
-    FILE *arq;
-    no_arv *lista, *arvore;
-    int tamanho;
-
-    lista = construirLista(arq, &tamanho);
-    mostrarLista(lista);
-    arvore = construirArvore(lista, tamanho);
-    mostrarArvore(arvore);
-    printf("\n");
-    gerarCodigos(arvore, 0, 0);
-    mostrarTabela(arvore, tamanho);
+    char comando[TAM_MAX] = "";
+    printf("INSTRUÇÕES AQUI\n\n");
+    while (strcmp(comando, "SAIR")) {
+	printf("> ");
+	scanf("%s",comando);
+    }
 
     return 0;
 }
 
-no_arv *construirLista(FILE *arq, int *tamanho) {
+no_arv *construirLista(char *nomeArq, int *tamanho) {
+    FILE *arq;
     int achou = 0;
     char ch;
     no_arv *pinicio, *pfim, *paux;
 
     /* Abre o arquivo. */
-    arq = fopen(ARQ_ENT, "r");
+    arq = fopen(nomeArq, "r");
 
     /* Cria o primeiro elemento da lista. */
     pinicio = (no_arv *) calloc(1, sizeof(no_arv));
@@ -209,19 +205,31 @@ void mostrarTabela(no_arv *arv, int tamanho) {
 }
 
 void mostrarCodigos(no_arv *arv) {
-    int x = 0;
+    int tamanho = 0,numero = 0, mask = 0;
     if (arv != NULL) {
 	if (arv->caractere != CAR_ESP) {
+	    tamanho = arv->tam_cod;
+	    numero = arv->codigo;
+	    mask = 1 << (tamanho - 1);
 	    // Mostrar código como binário com o número de casas
 	    //que está armazenado no campo profundidade.
 	   printf("%d ",arv->caractere );
-	   for (x = 0; x <= arv->tam_cod - 1; x++) {
-	       printf("%d", (arv->codigo << x) & 1);
+	   putchar(numero & mask ? '1' : '0');
+	   mask = (mask >> 1) & ~(1 << (tamanho - 1));
+	   while (mask) {
+	       putchar(numero & mask ? '1' : '0');
+	       mask >>= 1;
 	   }
-	   printf("\n");
-
+	   putchar('\n');
 	}
 	mostrarCodigos(arv->esq);
 	mostrarCodigos(arv->dir);
     }
+}
+
+void escreverArquivoCompactado(char *nomeArq) {
+    FILE *arq;
+
+    /* Abre o arquivo. */
+    arq = fopen(nomeArq, "w");
 }
