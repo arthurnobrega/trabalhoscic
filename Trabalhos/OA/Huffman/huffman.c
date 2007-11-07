@@ -209,11 +209,17 @@ void mostrarTabela(no_arv *arv, int tamanho) {
 }
 
 void mostrarCodigos(no_arv *arv) {
+    int x = 0;
     if (arv != NULL) {
 	if (arv->caractere != CAR_ESP) {
 	    // Mostrar código como binário com o número de casas
 	    //que está armazenado no campo profundidade.
-	   printf("%d  %x\n",arv->caractere, arv->codigo);
+	   printf("%d ",arv->caractere );
+	   for (x = 0; x <= arv->tam_cod - 1; x++) {
+	       printf("%d", (arv->codigo << x) & 1);
+	   }
+	   printf("\n");
+
 	}
 	mostrarCodigos(arv->esq);
 	mostrarCodigos(arv->dir);
