@@ -30,6 +30,8 @@ void mostrarNos(no_arv *arv);
 void gerarCodigos(no_arv *arv, int profundidade, int codigo);
 void mostrarTabela(no_arv *arv, int tamanho);
 void mostrarCodigos(no_arv *arv);
+void escreverArquivoCompactado(char *nomeArq, no_arv *arv);
+void gravarCodigosArquivo(FILE *arq, no_arv *arv);
 
 int main() {
     char comando[TAM_MAX] = "";
@@ -37,6 +39,36 @@ int main() {
     while (strcmp(comando, "SAIR")) {
 	printf("> ");
 	scanf("%s",comando);
+
+	if (!strcmp(comando, "TAB_HUFF")) {
+	    no_arv *arv;
+	    int tamanho = 0;
+	    scanf("%s", comando);
+	    arv = construirLista(comando, &tamanho);
+	    arv = construirArvore(arv, tamanho);
+	    gerarCodigos(arv, 0, 0);
+	    mostrarTabela(arv, tamanho);
+	} else if (!strcmp(comando, "HUFF")) {
+	    no_arv *arv;
+	    int tamanho = 0;
+	    scanf("%s", comando);
+	    arv = construirLista(comando, &tamanho);
+	    scanf("%s", comando);
+	    arv = construirArvore(arv, tamanho);
+	    gerarCodigos(arv, 0, 0);
+	    escreverArquivoCompactado(comando, arv);
+	    printf("Arquivo compactado salvo com sucesso!\n");
+	} else if (!strcmp(comando, "DIC_LZ")) {
+	    
+	} else if (!strcmp(comando, "LZ")) {
+	    
+	} else if (!strcmp(comando, "DESC")) {
+	    
+	} else if (!strcmp(comando, "RELAT")) {
+	    
+	} else {
+	    printf("Comando \"%s\" não encontrado.\n", comando);
+	}
     }
 
     return 0;
@@ -227,9 +259,36 @@ void mostrarCodigos(no_arv *arv) {
     }
 }
 
-void escreverArquivoCompactado(char *nomeArq) {
+void escreverArquivoCompactado(char *nomeArq, no_arv *arv) {
     FILE *arq;
 
-    /* Abre o arquivo. */
+    /* Cria o arquivo. */
     arq = fopen(nomeArq, "w");
+    fputs("H\n", arq);
+    gravarCodigosArquivo(arq, arv);
+    fclose(arq);
+}
+
+void gravarCodigosArquivo(FILE *arq, no_arv *arv) {
+    int tamanho = 0,numero = 0, mask = 0;
+    if (arv != NULL) {
+	if (arv->caractere != CAR_ESP) {
+	    tamanho = arv->tam_cod;
+	    numero = arv->codigo;
+	    mask = 1 << (tamanho - 1);
+	    // Mostrar código como binário com o número de casas
+	    //que está armazenado no campo profundidade.
+	    fputc(arv->caractere, arq);
+	    fputc(' ', arq);
+	    fputc(numero & mask ? '1' : '0', arq);
+	    mask = (mask >> 1) & ~(1 << (tamanho - 1));
+	    while (mask) {
+		fputc(numero & mask ? '1' : '0', arq);
+		mask >>= 1;
+	    }
+	    fputc('\n', arq);
+	}
+	gravarCodigosArquivo(arq, arv->esq);
+	gravarCodigosArquivo(arq, arv->dir);
+    }
 }
