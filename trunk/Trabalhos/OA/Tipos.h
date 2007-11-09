@@ -1,0 +1,22 @@
+#ifndef TIPOS_H
+#define TIPOS_H
+#define TAM_MAX 32
+#define CAR_ESP 127
+
+/** Estrutura do nó da árvore/lista de Huffman. */
+struct no_arv {
+    unsigned char caractere;
+    int frequencia;
+    int codigo;
+    int tam_cod;
+    struct no_arv *ant;
+    struct no_arv *prox;
+    struct no_arv *esq;
+    struct no_arv *dir;
+};
+
+typedef struct no_arv no_arv;
+
+#endif
+
+
