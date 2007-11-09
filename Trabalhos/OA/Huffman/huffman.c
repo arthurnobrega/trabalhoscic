@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define ARQ_ENT "arquivo.txt"
 #define TAM_MAX 32
 #define CAR_ESP 127
 
@@ -278,7 +277,7 @@ void gravarCodigosArquivo(FILE *arq, no_arv *arv) {
 	    mask = 1 << (tamanho - 1);
 	    // Mostrar código como binário com o número de casas
 	    //que está armazenado no campo profundidade.
-	    fputc(arv->caractere, arq);
+	    fprintf(arq, "%d", arv->caractere);
 	    fputc(' ', arq);
 	    fputc(numero & mask ? '1' : '0', arq);
 	    mask = (mask >> 1) & ~(1 << (tamanho - 1));
