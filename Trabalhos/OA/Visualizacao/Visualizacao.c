@@ -11,6 +11,7 @@ void mostrarMenu() {
     printf("INSTRUÇÕES AQUI\n\n");
     while (strcmp(comando, "SAIR")) {
 	printf("> ");
+	//lê toda a linha: scanf("%[^\n]",comando);
 	scanf("%s",comando);
 
 	if (!strcmp(comando, "TAB_HUFF")) {
@@ -21,10 +22,12 @@ void mostrarMenu() {
 	    arv = gerarArvoreHuffman(comando, &tamanho);
 	    mostrarTabela(arv, tamanho);
 	} else if (!strcmp(comando, "HUFF")) {
+	    char arqEntrada[TAM_MAX], arqSaida[TAM_MAX];
 	    no_arv *arv;
 	    int tamanho = 0;
-	    scanf("%s", comando);
-	    gerarArquivoHuffman(comando, arv, &tamanho);
+	    scanf("%s", arqEntrada);
+	    scanf("%s", arqSaida);
+	    gerarArquivoHuffman(arqEntrada, arqSaida, arv, &tamanho);
 	    printf("Arquivo compactado salvo com sucesso!\n");
 	} else if (!strcmp(comando, "DIC_LZ")) {
 	    
@@ -34,7 +37,7 @@ void mostrarMenu() {
 	    
 	} else if (!strcmp(comando, "RELAT")) {
 	    
-	} else {
+	} else if (strcmp(comando, "SAIR")){
 	    printf("Comando \"%s\" não encontrado.\n", comando);
 	}
     }
@@ -48,22 +51,15 @@ void mostrarTabela(no_arv *arv, int tamanho) {
 }
 
 void mostrarCodigos(no_arv *arv) {
-    int tamanho = 0,numero = 0, mask = 0;
     if (arv != NULL) {
 	if (arv->caractere != CAR_ESP) {
-	    tamanho = arv->tam_cod;
-	    numero = arv->codigo;
-	    mask = 1 << (tamanho - 1);
-	    // Mostrar código como binário com o número de casas
-	    //que está armazenado no campo profundidade.
-	    printf("%d ",arv->caractere );
-	    putchar(numero & mask ? '1' : '0');
-	    mask = (mask >> 1) & ~(1 << (tamanho - 1));
-	    while (mask) {
-		putchar(numero & mask ? '1' : '0');
-		mask >>= 1;
+	    int profundidade, i;
+	    printf("%d ",arv->caractere);
+	    profundidade = arv->profundidade;
+	    for (i = 0; i <= profundidade - 1; i ++) {
+		putc(arv->codigo[i], stdout);
 	    }
-	    putchar('\n');
+	    putc('\n', stdout);
 	}
 	mostrarCodigos(arv->esq);
 	mostrarCodigos(arv->dir);

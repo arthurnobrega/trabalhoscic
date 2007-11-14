@@ -2,6 +2,6 @@
 #define ARQ_H
 #include "../Tipos.h"
 
-void compactarArquivoHuffman(char *nomeArq, no_arv *arv);
+void compactarArquivoHuffman(char *narqEntrada, char *narqSaida, no_arv *arv);
 
 #endif

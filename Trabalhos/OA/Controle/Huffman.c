@@ -1,6 +1,7 @@
 #include "Huffman.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 
 no_arv *construirLista(char *nomeArq, int *tamanho) {
@@ -64,7 +65,7 @@ no_arv *ordenarLista(no_arv *pinicio, int tamanho) {
 	j = 0;
 	while ((j <= tamanho - 2) && (paux->prox != NULL)) {
 	    paux2 = paux->prox;
-	    if (paux->frequencia > paux2->frequencia) {
+	    if ((paux->frequencia > paux2->frequencia) || ((paux->frequencia == paux2->frequencia) && (paux->caractere > paux2->caractere))) {
 		if (j == 0) {
 		    pinicio = paux2;
 		} else {
@@ -113,16 +114,18 @@ no_arv *construirArvore(no_arv *pinicio, int tamanho) {
     return pinicio;
 }
 
-void gerarCodigos(no_arv *arv, int profundidade, int codigo) {
-    if (arv->caractere != CAR_ESP) {
-	arv->codigo = codigo;
-	arv->tam_cod = profundidade;
-	return;
-    } else {
-	codigo <<= 1;
-	profundidade++;
-	gerarCodigos(arv->esq, profundidade, codigo);
-	codigo |= 1;
-	gerarCodigos(arv->dir, profundidade, codigo);
+void gerarCodigos(no_arv *arv, int profundidade, char codigo[TAM_MAX]) {
+    if (arv != NULL) {
+	if (arv->caractere != CAR_ESP) {
+	    strcpy(arv->codigo, codigo);
+	    arv->profundidade = profundidade;
+	    return;
+	} else {
+	    profundidade++;
+	    codigo[profundidade] = '0';
+	    gerarCodigos(arv->esq, profundidade, codigo);
+	    codigo[profundidade] = '1';
+	    gerarCodigos(arv->dir, profundidade, codigo);
+	}
     }
 }
