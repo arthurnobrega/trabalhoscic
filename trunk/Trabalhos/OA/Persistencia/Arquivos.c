@@ -3,36 +3,64 @@
 
 void gravarCodigosHuffman(FILE *arq, no_arv *arv);
 
-void compactarArquivoHuffman(char *nomeArq, no_arv *arv) {
+char buffer[8];
+int tamanhoBuffer;
+
+void compactarArquivoHuffman(char *narqEntrada, char *narqSaida, no_arv *arv) {
     FILE *arq;
 
     /* Cria o arquivo. */
-    arq = fopen(nomeArq, "w");
-    fputs("H\n", arq);
-    gravarCodigosHuffman(arq, arv);
-    fclose(arq);
+    arqSaida = fopen(narqSaida, "wb+");
+    fputs("H\n", arqSaida);
+    gravarCodigosHuffman(arqEntrada, arv);
+    arqEntrada = fopen(narqEntrada, "wb+");
+    gravarCodificacao(arqEntrada, arqSaida, arv);
+    fclose(arqEntrada);
+    fclose(arqSaida);
 }
 
-void gravarCodigosHuffman(FILE *arq, no_arv *arv) {
-    int tamanho = 0,numero = 0, mask = 0;
+void gravarTabelaCodigos(FILE *arq, no_arv *arv) {
     if (arv != NULL) {
 	if (arv->caractere != CAR_ESP) {
-	    tamanho = arv->tam_cod;
-	    numero = arv->codigo;
-	    mask = 1 << (tamanho - 1);
-	    // Mostrar código como binário com o número de casas
-	    //que está armazenado no campo profundidade.
-	    fprintf(arq, "%d", arv->caractere);
-	    fputc(' ', arq);
-	    fputc(numero & mask ? '1' : '0', arq);
-	    mask = (mask >> 1) & ~(1 << (tamanho - 1));
-	    while (mask) {
-		fputc(numero & mask ? '1' : '0', arq);
-		mask >>= 1;
+	    int profundidade, i;
+	    sprintf("%d ",arv->caractere);
+	    profundidade = arv->profundidade;
+	    for (i = 0; i <= profundidade - 1; i ++) {
+		putc(arv->codigo[i], arq);
 	    }
-	    fputc('\n', arq);
+	    putc('\n', arq);
 	}
-	gravarCodigosHuffman(arq, arv->esq);
-	gravarCodigosHuffman(arq, arv->dir);
+	mostrarCodigos(arv->esq);
+	mostrarCodigos(arv->dir);
     }
 }
+
+void gravarCodificacao(FILE *arq, no_arv *arv) {
+    
+}
+
+no_arv *buscarNo(no_arv *arv, const char caractere) {
+    no_arv *arv_teste;
+    if (arv != NULL) {
+	if (arv->caractere == caractere) {
+	    return arv;
+	} else {
+	    if ((arv_teste = buscarNo(arv->esq, caractere)) != NULL) {
+		return arv_teste;
+	    } else if ((arv_teste = buscarNo(arv->dir, caractere)) != NULL) {
+		return arv_teste;
+	    }
+	}
+    }
+
+    return NULL;
+}
+
+
+
+
+
+
+
+
+//te adoro juarez, me da 10 no trabalçho vai!
