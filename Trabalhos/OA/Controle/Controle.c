@@ -6,9 +6,7 @@
 
 no_arv *gerarArvoreHuffman(char nomeArq[TAM_MAX], int *tamanho) {
     no_arv *arv;
-    char codigo[TAM_MAX] ;
-
-    codigo[0] = CAR_ESP;
+    char codigo[TAM_MAX];
 
     arv = construirLista(nomeArq, tamanho);
     arv = construirArvore(arv, *tamanho);
@@ -17,15 +15,11 @@ no_arv *gerarArvoreHuffman(char nomeArq[TAM_MAX], int *tamanho) {
     return arv;
 }
 
-void gerarArquivoHuffman(char arqEntrada[TAM_MAX], char arqSaida[TAM_MAX], no_arv *arv, int *tamanho) {
+void gerarArquivoHuffman(char narqEntrada[TAM_MAX], char narqSaida[TAM_MAX], no_arv *arv, int *tamanho) {
     char codigo[TAM_MAX];
 
-    codigo[0] = CAR_ESP;
-
-    arv = construirLista(arqEntrada, tamanho);
-    arv = construirArvore(arv, *tamanho);
-    gerarCodigos(arv, 0, codigo);
-    compactarArquivoHuffman(arqSaida, arv);
+    arv = gerarArvoreHuffman(narqEntrada, tamanho);
+    compactarArquivoHuffman(narqEntrada, narqSaida, arv, *tamanho);
 
     return;
 }

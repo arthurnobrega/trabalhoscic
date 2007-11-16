@@ -1,7 +1,6 @@
 #ifndef TIPOS_H
 #define TIPOS_H
 #define TAM_MAX 256
-#define CAR_ESP 127
 
 /** Estrutura do nó da árvore/lista de Huffman. */
 struct no_arv {
@@ -18,5 +17,3 @@ struct no_arv {
 typedef struct no_arv no_arv;
 
 #endif
-
-

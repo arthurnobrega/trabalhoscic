@@ -106,7 +106,7 @@ no_arv *construirArvore(no_arv *pinicio, int tamanho) {
 	paux->ant = NULL;
 	paux->prox = NULL;
 	pnovo->frequencia = pinicio->frequencia + paux->frequencia;
-	pnovo->caractere = CAR_ESP;
+	pnovo->caractere = pinicio->caractere;
 
 	pinicio = pnovo;
 	pinicio = ordenarLista(pinicio, tamanho);
@@ -115,17 +115,15 @@ no_arv *construirArvore(no_arv *pinicio, int tamanho) {
 }
 
 void gerarCodigos(no_arv *arv, int profundidade, char codigo[TAM_MAX]) {
-    if (arv != NULL) {
-	if (arv->caractere != CAR_ESP) {
-	    strcpy(arv->codigo, codigo);
-	    arv->profundidade = profundidade;
-	    return;
-	} else {
-	    profundidade++;
-	    codigo[profundidade] = '0';
-	    gerarCodigos(arv->esq, profundidade, codigo);
-	    codigo[profundidade] = '1';
-	    gerarCodigos(arv->dir, profundidade, codigo);
-	}
+    if (arv->esq == NULL)  {
+	strcpy(arv->codigo, codigo);
+	codigo[profundidade] = '\0';
+	arv->profundidade = profundidade;
+	return;
+    } else {
+	codigo[profundidade] = '0';
+	gerarCodigos(arv->esq, profundidade + 1, codigo);
+	codigo[profundidade] = '1';
+	gerarCodigos(arv->dir, profundidade + 1, codigo);
     }
 }
