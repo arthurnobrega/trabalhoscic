@@ -145,26 +145,21 @@ no_arv *buscarNoCaractere(no_arv *arv, const char caractere) {
 }
 
 no_arv *buscarNoCodigo(no_arv *arv, char codigo[TAM_MAX], int profundidade) {
-    no_arv *no;
+    no_arv *paux;
+    int i;
 
-    if (arv->esq == NULL) {
-	if (arv->profundidade != profundidade) {
-	    return NULL;
+    paux = arv;
+    for (i = 0; i <= profundidade - 1; i++) {
+	if (codigo[i] == '0') {
+	    paux = paux->esq;
 	} else {
-	    int i;
-	    for (i = 0; i <= profundidade - 1; i++) {
-		if (arv->codigo[profundidade] != codigo[profundidade]) {
-		    return NULL;
-		}
-	    }
-	    return arv;
-	}
-    } else {
-	if ((no = buscarNoCodigo(arv->esq, codigo, profundidade)) != NULL) {
-	    return no;
-	} else if ((no = buscarNoCodigo(arv->dir, codigo, profundidade)) != NULL) {
-	    return no;
+	    paux = paux->dir;
 	}
     }
+
+    if (paux->esq == NULL) {
+	return paux;
+    }
+
     return NULL;
 }

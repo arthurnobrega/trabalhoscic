@@ -37,6 +37,7 @@ no_arv *lerTabelaHuffman(FILE *arqEntrada) {
     int i, tamanho;
     no_arv *arv;
 
+    arv = calloc(1, sizeof(no_arv));
     nroLinhas = fgetc(arqEntrada);
     caractere = fgetc(arqEntrada);
     for (i = 0; i <= nroLinhas - 1; i++) {
@@ -53,44 +54,48 @@ no_arv *lerTabelaHuffman(FILE *arqEntrada) {
 }
 
 void reconstruirArvoreHuffman(no_arv *arv, char caractere, char codigo[TAM_MAX], int profundidade) {
-    no_arv *paux;
+    no_arv *paux, *pnovo;
     int i;
 
-    if (arv == NULL) {
-	arv = calloc(1, sizeof(no_arv));
-    }
     paux = arv;
     for (i = 0; i <= profundidade - 1; i++) {
 	if (codigo[i] == '0') {
 	    if (paux->esq == NULL) {
-	       paux->esq = calloc(1, sizeof(no_arv));
+	       pnovo = calloc(1, sizeof(no_arv));
+	       pnovo->esq = NULL;
+	       pnovo->dir = NULL;
+	       paux->esq = pnovo;
 	    }
-	    paux = arv->esq;
+	    paux = paux->esq;
 	} else {
 	    if (paux->dir == NULL) {
-		paux->dir = calloc(1, sizeof(no_arv));
+		pnovo = calloc(1, sizeof(no_arv));
+		pnovo->esq = NULL;
+		pnovo->dir = NULL;
+		paux->dir = pnovo;
 	    }
-	    paux = arv->dir;
+	    paux = paux->dir;
 	}
     }
     strcpy(paux->codigo,codigo);
     paux->profundidade = profundidade;
     paux->caractere = caractere;
-    paux->frequencia = 0;
-    paux->esq = NULL;
-    paux->dir = NULL;
 }
 
 void escreverArquivoTexto(FILE *arqEntrada, FILE *arqSaida, no_arv *arv) {
-    char ch, caux, vetorCod[TAM_MAX], vetaux[1];
-    int indiceAtual, tamanho, i;
+    char ch, vetorCod[TAM_MAX];
+    unsigned char caux;
+    int tamanho = 0, i, nroBits;
     no_arv *no;
 
-    tamanho = 0;
-    indiceAtual = 0;
-    while ((fread(&ch, sizeof(char), 1, arqEntrada)) != EOF) {
+    nroBits = 8;
+    while ((ch = fgetc(arqEntrada)) != EOF) {
+	if (ch == CAR_MARC) {
+	    nroBits = fgetc(arqEntrada);
+	    ch = fgetc(arqEntrada);
+	}
 	caux = 128;
-	for (i = 0; i <= 8 - 1; i++) {
+	for (i = 0; i <= nroBits - 1; i++) {
 	    if (caux & ch) {
 		vetorCod[tamanho] = '1';
 	    } else {
@@ -101,8 +106,8 @@ void escreverArquivoTexto(FILE *arqEntrada, FILE *arqSaida, no_arv *arv) {
 	    no = buscarNoCodigo(arv, vetorCod, tamanho);
 	    if (no != NULL) {
 		tamanho = 0;
-		vetaux[0] = no->caractere;
-		fwrite(vetaux, 1, 1, arqSaida);
+		fwrite(&no->caractere, 1, 1, arqSaida);
+		no = NULL;
 	    }
 	}
     }

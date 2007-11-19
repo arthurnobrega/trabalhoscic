@@ -19,10 +19,10 @@ void compactarArquivoHuffman(char *narqEntrada, char *narqSaida, no_arv *arv, in
     /* Cria o arquivo de Saída. */
     arqSaida = fopen(narqSaida, "wb");
 
-    fwrite("H\n", 2, 2 , arqSaida);
+    fputs("H\n", arqSaida);
     tam = tamanho;
-    fwrite(&tam, 1, 1, arqSaida);
-    fwrite("\n", 1, 1, arqSaida);
+    fputc(tam, arqSaida);
+    fputs("\n", arqSaida);
     gravarTabelaCodigos(arqSaida, arv);
     gravarCodificacao(arqEntrada, arqSaida, arv);
     fclose(arqEntrada);
@@ -38,7 +38,7 @@ void gravarTabelaCodigos(FILE *arqSaida, no_arv *arv) {
 	for (i = 0; i <= profundidade - 1; i++) {
 	    fwrite(&arv->codigo[i], 1, 1, arqSaida);
 	}
-	fwrite("\n", 1, 1, arqSaida);
+	fputc('\n', arqSaida);
     } else {
 	gravarTabelaCodigos(arqSaida, arv->esq);
 	gravarTabelaCodigos(arqSaida, arv->dir);
@@ -46,24 +46,35 @@ void gravarTabelaCodigos(FILE *arqSaida, no_arv *arv) {
 }
 
 void gravarCodificacao(FILE *arqEntrada, FILE *arqSaida, no_arv *arv) {
-    char ch;
+    char ch, chprox;
     no_arv *no;
-    int profundidade, i;
+    int i;
 
-    while ((ch = fgetc(arqEntrada)) != EOF) {
+    ch = fgetc(arqEntrada);
+    chprox = fgetc(arqEntrada);
+    while (chprox != EOF) {
 	no = buscarNoCaractere(arv, ch);
-	profundidade = no->profundidade;
-	for (i = 0; i <= profundidade - 1; i++) {
+	for (i = 0; i <= no->profundidade - 1; i++) {
 	    buffer <<= 1;
 	    if (no->codigo[i] == '1') {
 		buffer |= 1;
 	    }
 	    tamanhoBuffer++;
 	    if (tamanhoBuffer == 8) {
-		fwrite(&buffer, 1, 1, arqSaida);
+		fputc(buffer, arqSaida);
+		printf("%d ", buffer);
 		buffer = 0;
 		tamanhoBuffer = 0;
 	    }
 	}
+	ch = chprox;
+	chprox = fgetc(arqEntrada);
     }
+    fputc(CAR_MARC, arqSaida);
+    fputc(tamanhoBuffer, arqSaida);
+    buffer <<= 8 - tamanhoBuffer;
+    fputc(buffer, arqSaida);
+    printf("%d ", CAR_MARC);
+    printf("%d ", tamanhoBuffer);
+    printf("%d ", buffer);
 }

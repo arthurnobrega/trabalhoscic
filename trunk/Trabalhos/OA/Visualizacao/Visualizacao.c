@@ -69,7 +69,7 @@ void mostrarTabela(no_arv *arv, int tamanho) {
 void mostrarCodigos(no_arv *arv) {
     if (arv->esq == NULL) {
 	int profundidade, i;
-	printf("%d ",arv->caractere);
+	printf("%c ",arv->caractere);
 	profundidade = arv->profundidade;
 	for (i = 0; i <= profundidade - 1; i++) {
 	    putc(arv->codigo[i], stdout);

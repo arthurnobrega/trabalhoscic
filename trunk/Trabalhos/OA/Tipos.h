@@ -1,6 +1,7 @@
 #ifndef TIPOS_H
 #define TIPOS_H
 #define TAM_MAX 256
+#define CAR_MARC -1
 
 /** Estrutura do nó da árvore/lista de Huffman. */
 struct no_arv {
