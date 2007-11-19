@@ -45,7 +45,12 @@ void mostrarMenu() {
 	} else if (!strcmp(comando, "LZ")) {
 	    
 	} else if (!strcmp(comando, "DESC")) {
-	    
+	    char arqEntrada[TAM_MAX], arqSaida[TAM_MAX];
+
+	    scanf("%s", arqEntrada);
+	    scanf("%s", arqSaida);
+	    descomprimirArquivo(arqEntrada, arqSaida);
+	    printf("Arquivo descompactado com sucesso!\n");
 	} else if (!strcmp(comando, "RELAT")) {
 	    
 	} else if (strcmp(comando, "SAIR")){

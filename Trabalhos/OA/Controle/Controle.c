@@ -3,6 +3,7 @@
 #include "Huffman.h"
 #include "Lempel-Ziv.h"
 #include "../Persistencia/Arquivos.h"
+#include "Descompressao.h"
 
 no_arv *gerarArvoreHuffman(char nomeArq[TAM_MAX], int *tamanho) {
     no_arv *arv;
@@ -16,12 +17,15 @@ no_arv *gerarArvoreHuffman(char nomeArq[TAM_MAX], int *tamanho) {
 }
 
 void gerarArquivoHuffman(char narqEntrada[TAM_MAX], char narqSaida[TAM_MAX], no_arv *arv, int *tamanho) {
-    char codigo[TAM_MAX];
 
     arv = gerarArvoreHuffman(narqEntrada, tamanho);
     compactarArquivoHuffman(narqEntrada, narqSaida, arv, *tamanho);
 
     return;
+}
+
+void descomprimirArquivo(char narqEntrada[TAM_MAX], char narqSaida[TAM_MAX]) {
+    descomprimir(narqEntrada, narqSaida);
 }
 
 

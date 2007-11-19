@@ -8,4 +8,3 @@ programa: $(DEPS)
 
 debug: $(DEPS)
 	gcc -o programa_debug -g -Wall Main.c Controle/*.c Persistencia/*.c Visualizacao/*.c
-	gdb ./programa_debug
