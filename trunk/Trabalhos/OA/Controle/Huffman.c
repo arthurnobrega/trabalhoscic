@@ -127,3 +127,44 @@ void gerarCodigos(no_arv *arv, int profundidade, char codigo[TAM_MAX]) {
 	gerarCodigos(arv->dir, profundidade + 1, codigo);
     }
 }
+
+no_arv *buscarNoCaractere(no_arv *arv, const char caractere) {
+    no_arv *no;
+    if (arv->esq == NULL) {
+	if (arv->caractere == caractere) {
+	    return arv;
+	}
+    } else {
+	if ((no = buscarNoCaractere(arv->esq, caractere)) != NULL) {
+	    return no;
+	} else if ((no = buscarNoCaractere(arv->dir, caractere)) != NULL) {
+	    return no;
+	}
+    }
+    return NULL;
+}
+
+no_arv *buscarNoCodigo(no_arv *arv, char codigo[TAM_MAX], int profundidade) {
+    no_arv *no;
+
+    if (arv->esq == NULL) {
+	if (arv->profundidade != profundidade) {
+	    return NULL;
+	} else {
+	    int i;
+	    for (i = 0; i <= profundidade - 1; i++) {
+		if (arv->codigo[profundidade] != codigo[profundidade]) {
+		    return NULL;
+		}
+	    }
+	    return arv;
+	}
+    } else {
+	if ((no = buscarNoCodigo(arv->esq, codigo, profundidade)) != NULL) {
+	    return no;
+	} else if ((no = buscarNoCodigo(arv->dir, codigo, profundidade)) != NULL) {
+	    return no;
+	}
+    }
+    return NULL;
+}
