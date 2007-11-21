@@ -62,7 +62,6 @@ void gravarCodificacao(FILE *arqEntrada, FILE *arqSaida, no_arv *arv) {
 	    tamanhoBuffer++;
 	    if (tamanhoBuffer == 8) {
 		fputc(buffer, arqSaida);
-		printf("%d ", buffer);
 		buffer = 0;
 		tamanhoBuffer = 0;
 	    }
@@ -70,11 +69,7 @@ void gravarCodificacao(FILE *arqEntrada, FILE *arqSaida, no_arv *arv) {
 	ch = chprox;
 	chprox = fgetc(arqEntrada);
     }
-    fputc(CAR_MARC, arqSaida);
-    fputc(tamanhoBuffer, arqSaida);
     buffer <<= 8 - tamanhoBuffer;
     fputc(buffer, arqSaida);
-    printf("%d ", CAR_MARC);
-    printf("%d ", tamanhoBuffer);
-    printf("%d ", buffer);
+    fputc(tamanhoBuffer, arqSaida);
 }
