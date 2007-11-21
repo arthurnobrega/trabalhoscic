@@ -1,7 +1,8 @@
 #ifndef DESC_H
 #define DESC_H
 #include "../Tipos.h"
+#include <stdio.h>
 
-void descomprimir(char narqEntrada[TAM_MAX], char narqSaida[TAM_MAX]);
+void descomprimir(FILE *arqEntrada, FILE *arqSaida);
 
 #endif

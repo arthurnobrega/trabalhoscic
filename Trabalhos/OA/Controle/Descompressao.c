@@ -5,20 +5,13 @@
 #include "../Persistencia/Arquivos.h"
 #include "Huffman.h"
 
-void descomprimir(char narqEntrada[TAM_MAX], char narqSaida[TAM_MAX]);
 no_arv *lerTabelaHuffman(FILE *arqEntrada);
-void reconstruirArvoreHuffman(no_arv *arv, char caractere, char codigo[TAM_MAX], int profundidade);
+void reconstruirArvoreHuffman(no_arv *arv, char caractere, char *codigo, int profundidade);
 void escreverArquivoTexto(FILE *arqEntrada, FILE *arqSaida, no_arv *arv);
 
-void descomprimir(char narqEntrada[TAM_MAX], char narqSaida[TAM_MAX]) {
-    FILE *arqSaida, *arqEntrada;
+void descomprimir(FILE *arqEntrada, FILE *arqSaida) {
     char ch;
     no_arv *arv;
-
-    /* Abre o arquivo de Entrada. */
-    arqEntrada = fopen(narqEntrada, "rb");
-    /* Cria o arquivo de Saída. */
-    arqSaida = fopen(narqSaida, "w");
 
     ch = fgetc(arqEntrada);
     if (ch == 'H') {
@@ -53,7 +46,7 @@ no_arv *lerTabelaHuffman(FILE *arqEntrada) {
     return arv;
 }
 
-void reconstruirArvoreHuffman(no_arv *arv, char caractere, char codigo[TAM_MAX], int profundidade) {
+void reconstruirArvoreHuffman(no_arv *arv, char caractere, char *codigo, int profundidade) {
     no_arv *paux, *pnovo;
     int i;
 
