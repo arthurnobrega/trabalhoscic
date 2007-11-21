@@ -1,7 +1,8 @@
 #ifndef ARQ_H
 #define ARQ_H
 #include "../Tipos.h"
+#include <stdio.h>
 
-void compactarArquivoHuffman(char *narqEntrada, char *narqSaida, no_arv *arv, int tamanho);
+int abrirArquivo(FILE *arq, char *nomeArq, char *modo);
 
 #endif

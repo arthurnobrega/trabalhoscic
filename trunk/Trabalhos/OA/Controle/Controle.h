@@ -2,8 +2,8 @@
 #define CONT_H
 #include "../Tipos.h"
 
-no_arv *gerarArvoreHuffman(char nomeArq[TAM_MAX], int *tamanho);
-void gerarArquivoHuffman(char narqEntrada[TAM_MAX], char narqSaida[TAM_MAX], no_arv *arv, int *tamanho);
-void descomprimirArquivo(char narqEntrada[TAM_MAX], char narqSaida[TAM_MAX]);
+no_arv *c_gerarArvoreHuffman(char *nomeArq, int *tamanho);
+void c_compactarHuffman(char *narqEntrada, char *narqSaida, no_arv *arv, int *tamanho);
+void c_descomprimirArquivo(char *narqEntrada, char *narqSaida);
 
 #endif

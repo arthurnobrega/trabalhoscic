@@ -1,17 +1,18 @@
 #include "Huffman.h"
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+no_arv *ordenarLista(no_arv *pinicio, int tamanho);
+void gravarTabelaCodigos(FILE *arqSaida, no_arv *arv);
+void gravarCodificacao(FILE *arqEntrada, FILE *arqSaida, no_arv *arv);
 
-no_arv *construirLista(char *nomeArq, int *tamanho) {
-    FILE *arq;
+unsigned char buffer = 0;
+int tamanhoBuffer = 0;
+
+no_arv *construirLista(FILE *arq, int *tamanho) {
     int achou = 0;
     char ch;
     no_arv *pinicio, *pfim, *paux;
-
-    /* Abre o arquivo. */
-    arq = fopen(nomeArq, "r");
 
     /* Cria o primeiro elemento da lista. */
     pinicio = (no_arv *) calloc(1, sizeof(no_arv));
@@ -114,7 +115,7 @@ no_arv *construirArvore(no_arv *pinicio, int tamanho) {
     return pinicio;
 }
 
-void gerarCodigos(no_arv *arv, int profundidade, char codigo[TAM_MAX]) {
+void gerarCodigos(no_arv *arv, int profundidade, char *codigo) {
     if (arv->esq == NULL)  {
 	strcpy(arv->codigo, codigo);
 	codigo[profundidade] = '\0';
@@ -128,7 +129,7 @@ void gerarCodigos(no_arv *arv, int profundidade, char codigo[TAM_MAX]) {
     }
 }
 
-no_arv *buscarNoCaractere(no_arv *arv, const char caractere) {
+no_arv *buscarNoCaractere(no_arv *arv, char caractere) {
     no_arv *no;
     if (arv->esq == NULL) {
 	if (arv->caractere == caractere) {
@@ -144,7 +145,7 @@ no_arv *buscarNoCaractere(no_arv *arv, const char caractere) {
     return NULL;
 }
 
-no_arv *buscarNoCodigo(no_arv *arv, char codigo[TAM_MAX], int profundidade) {
+no_arv *buscarNoCodigo(no_arv *arv, char *codigo, int profundidade) {
     no_arv *paux;
     int i;
 
@@ -162,4 +163,62 @@ no_arv *buscarNoCodigo(no_arv *arv, char codigo[TAM_MAX], int profundidade) {
     }
 
     return NULL;
+}
+
+void compactarArquivoHuffman(FILE *arqEntrada, FILE *arqSaida, no_arv *arv, int tamanho) {
+    char tam;
+
+    fputs("H\n", arqSaida);
+    tam = tamanho;
+    fputc(tam, arqSaida);
+    fputs("\n", arqSaida);
+    gravarTabelaCodigos(arqSaida, arv);
+    gravarCodificacao(arqEntrada, arqSaida, arv);
+    fclose(arqEntrada);
+    fclose(arqSaida);
+}
+
+void gravarTabelaCodigos(FILE *arqSaida, no_arv *arv) {
+    if (arv->esq == NULL) {
+	int profundidade, i;
+
+	fwrite(&arv->caractere, 1, 1, arqSaida);
+	profundidade = arv->profundidade;
+	for (i = 0; i <= profundidade - 1; i++) {
+	    fwrite(&arv->codigo[i], 1, 1, arqSaida);
+	}
+	fputc('\n', arqSaida);
+    } else {
+	gravarTabelaCodigos(arqSaida, arv->esq);
+	gravarTabelaCodigos(arqSaida, arv->dir);
+    }
+}
+
+void gravarCodificacao(FILE *arqEntrada, FILE *arqSaida, no_arv *arv) {
+    char ch, chprox;
+    no_arv *no;
+    int i;
+
+    ch = fgetc(arqEntrada);
+    chprox = fgetc(arqEntrada);
+    while (chprox != EOF) {
+	no = buscarNoCaractere(arv, ch);
+	for (i = 0; i <= no->profundidade - 1; i++) {
+	    buffer <<= 1;
+	    if (no->codigo[i] == '1') {
+		buffer |= 1;
+	    }
+	    tamanhoBuffer++;
+	    if (tamanhoBuffer == 8) {
+		fputc(buffer, arqSaida);
+		buffer = 0;
+		tamanhoBuffer = 0;
+	    }
+	}
+	ch = chprox;
+	chprox = fgetc(arqEntrada);
+    }
+    buffer <<= 8 - tamanhoBuffer;
+    fputc(buffer, arqSaida);
+    fputc(tamanhoBuffer, arqSaida);
 }

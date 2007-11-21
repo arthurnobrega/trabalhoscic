@@ -29,7 +29,7 @@ void mostrarMenu() {
 
 	    scanf("%s", comando);
 	    // Testar se o arquivo existe
-	    arv = gerarArvoreHuffman(comando, &tamanho);
+	    arv = c_gerarArvoreHuffman(comando, &tamanho);
 	    mostrarTabela(arv, tamanho);
 	} else if (!strcmp(comando, "HUFF")) {
 	    char arqEntrada[TAM_MAX], arqSaida[TAM_MAX];
@@ -38,7 +38,7 @@ void mostrarMenu() {
 
 	    scanf("%s", arqEntrada);
 	    scanf("%s", arqSaida);
-	    gerarArquivoHuffman(arqEntrada, arqSaida, arv, &tamanho);
+	    c_compactarHuffman(arqEntrada, arqSaida, arv, &tamanho);
 	    printf("Arquivo compactado e salvo com sucesso!\n");
 	} else if (!strcmp(comando, "DIC_LZ")) {
 	    
@@ -49,7 +49,7 @@ void mostrarMenu() {
 
 	    scanf("%s", arqEntrada);
 	    scanf("%s", arqSaida);
-	    descomprimirArquivo(arqEntrada, arqSaida);
+	    c_descomprimirArquivo(arqEntrada, arqSaida);
 	    printf("Arquivo descompactado com sucesso!\n");
 	} else if (!strcmp(comando, "RELAT")) {
 	    
@@ -69,7 +69,7 @@ void mostrarTabela(no_arv *arv, int tamanho) {
 void mostrarCodigos(no_arv *arv) {
     if (arv->esq == NULL) {
 	int profundidade, i;
-	printf("%c ",arv->caractere);
+	printf("%d ",arv->caractere);
 	profundidade = arv->profundidade;
 	for (i = 0; i <= profundidade - 1; i++) {
 	    putc(arv->codigo[i], stdout);
