@@ -83,20 +83,23 @@ void reconstruirArvoreHuffman(no_arv *arv, char caractere, char codigo[TAM_MAX],
 }
 
 void escreverArquivoTexto(FILE *arqEntrada, FILE *arqSaida, no_arv *arv) {
-    char ch, vetorCod[TAM_MAX];
+    char ch[3], vetorCod[TAM_MAX];
     unsigned char caux;
-    int tamanho = 0, i, nroBits;
+    int tamanho = 0, i, nroBits, sair = 1;
     no_arv *no;
 
     nroBits = 8;
-    while ((ch = fgetc(arqEntrada)) != EOF) {
-	if (ch == CAR_MARC) {
-	    nroBits = fgetc(arqEntrada);
-	    ch = fgetc(arqEntrada);
+    ch[0] = fgetc(arqEntrada);
+    ch[1] = fgetc(arqEntrada);
+    ch[2] = fgetc(arqEntrada);
+    while (sair) {
+	if (feof(arqEntrada)) {
+	    nroBits = ch[1] + 1;
+	    sair = 0;
 	}
 	caux = 128;
 	for (i = 0; i <= nroBits - 1; i++) {
-	    if (caux & ch) {
+	    if (caux & ch[0]) {
 		vetorCod[tamanho] = '1';
 	    } else {
 		vetorCod[tamanho] = '0';
@@ -110,5 +113,8 @@ void escreverArquivoTexto(FILE *arqEntrada, FILE *arqSaida, no_arv *arv) {
 		no = NULL;
 	    }
 	}
+	ch[0] = ch[1];
+	ch[1] = ch[2];
+	ch[2] = fgetc(arqEntrada);
     }
 }
