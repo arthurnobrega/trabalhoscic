@@ -1,4 +1,3 @@
-#include "Lempel-Ziv.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,6 +8,7 @@ struct registro{
     char letraRaiz;
     reg *filhas;
     reg *prox;
+    int indice;
 };
 
 //cria uma lista encadeada com a sequencia de caracter do codigo LZ
@@ -17,10 +17,10 @@ void criarLista(FILE *arq, reg *pretorno){
 
     reg pinicio = *pretorno;
     reg p1 = NULL;
-    reg p2 = NULL;
     int achou = 0;
     int acabouArvore = 0;
     int fimLinha = 0;
+    int contadorIndice = 0;
 
     
     while((caracter = getc(arq)) != EOF){
@@ -30,6 +30,8 @@ void criarLista(FILE *arq, reg *pretorno){
             pinicio->prox = NULL;
             pinicio->filhas = NULL;
             pinicio->letraRaiz = caracter;
+            contadorIndice = (contadorIndice + 1);
+            pinicio->indice = contadorIndice;
             p1 = pinicio;
         }else{
             while(acabouArvore == 0){
@@ -50,14 +52,30 @@ void criarLista(FILE *arq, reg *pretorno){
                     p1->prox = malloc(sizeof(reg));
                     p1 = *p1->prox;
                     p1->letraRaiz = caracter;
+                    contadorIndice = contadorIndice + 1;
+                    p1->indice = contadorIndice;
                     p1->prox = NULL;
                     p1->filhas = NULL;
 
                     
                 }else{
                     printf("andando para as filhas");
-                    p1 = *p1->filhas;
                     caracter = getc(arq);
+                    if (p1->filhas != NULL){
+                        p1 = *p1->filhas;                        
+                    }else{
+                        printf("%c\n", caracter);
+                        acabouArvore = 1;
+                        p1->filhas = malloc(sizeof(reg));
+                        p1 = *p1->filhas;
+                        p1->letraRaiz = caracter;
+                        contadorIndice = contadorIndice + 1;
+                        p1->indice = contadorIndice;
+                        p1->filhas = NULL;
+                        p1->prox = NULL;
+                        //caracter = getc(arq);
+                        printf("%c\n", caracter);
+                    }
                     achou = 0;
                 }
             }
@@ -82,21 +100,47 @@ int contarTamanhoDaLista(reg pinicio){
 }
 
 int main(){
-    printf("aqui");
+
     FILE *arq = fopen("teste.txt","r");
     reg pinicio = NULL;
-    printf("aqui");
+
     criarLista(arq, &pinicio);
     reg p1 = pinicio;
-        printf("aqui");
-    while(p1 != NULL){
-        printf("antes do\n");
+
+    while(p1->prox != NULL){
         printf("%c\n",p1->letraRaiz);
-        printf("depois do\n");
+        printf("%d", p1->indice);
         p1 = *p1->prox;
-        printf("por fim\n\n");
     }
-    printf("depois não");
+        printf("%c\n",p1->letraRaiz);
+        printf("%d", p1->indice);
+
+printf("\n\n");
+reg p2 = pinicio;
+p1 = *p2->filhas;
+while (p2->prox != NULL){
+printf("\n\n");
+    while(p1->prox != NULL){
+        printf("%c\n",p1->letraRaiz);
+        printf("%d", p1->indice);
+        p1 = *p1->prox;
+    }
+        printf("%c\n",p1->letraRaiz);
+        printf("%d", p1->indice);
+    p2 = *p2->prox;
+    while(p2->filhas == NULL){
+        p2 = *p2->prox;
+    }
+        p1 = *p2->filhas;    
+
+
+}
+while(p1->prox != NULL){
+        printf("%c\n",p1->letraRaiz);
+        p1 = *p1->prox;
+    }
+        printf("%c\n",p1->letraRaiz);
+
     int a = 1;
     scanf("%d",a);
     
