@@ -3,6 +3,11 @@
 #define TAM_MAX 256
 #define CAR_MARC -1
 
+typedef struct no_arv no_arv;
+typedef struct registro *reg;
+typedef struct tabela *tab;
+
+
 /** Estrutura do nó da árvore/lista de Huffman. */
 struct no_arv {
     unsigned char caractere;
@@ -15,6 +20,18 @@ struct no_arv {
     struct no_arv *dir;
 };
 
-typedef struct no_arv no_arv;
 
+struct registro{
+    char letraRaiz;
+    reg *filhas;
+    reg *prox;
+    int indice;
+};
+
+struct tabela{
+    tab *prox;
+    int indice;
+    char letraRaiz;
+    int indiceAnterior;
+};
 #endif

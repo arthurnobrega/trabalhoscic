@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "../Controle/Controle.h"
+#include "../Tipos.h"
 
 void mostrarTabela(no_arv *arv, int tamanho);
 void mostrarCodigos(no_arv *arv);
@@ -41,7 +42,17 @@ void mostrarMenu() {
 	    c_compactarHuffman(arqEntrada, arqSaida, arv, &tamanho);
 	    printf("Arquivo compactado e salvo com sucesso!\n");
 	} else if (!strcmp(comando, "DIC_LZ")) {
-	    
+        tab tabelaLempelZiv = NULL;
+	    gravarTabela(&tabelaLempelZiv);
+        tab p1 = tabelaLempelZiv;
+
+        printf("INDICES ANTERIOR CODIGO(TABELA ASCII)");
+        while(p1->prox != NULL){
+            printf("%-8d\n",p1->indice);
+            printf("%-9d\n",p1->indiceAnterior);
+            printf("%-20d\n",(int)p1->letraRaiz);
+        }
+        free(tabelaLempelZiv);
 	} else if (!strcmp(comando, "LZ")) {
 	    
 	} else if (!strcmp(comando, "DESC")) {
