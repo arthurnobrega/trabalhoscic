@@ -3,6 +3,11 @@
 #include "Huffman.h"
 #include "../Persistencia/Arquivos.h"
 #include "Descompressao.h"
+#include "Lempel-Ziv.h"
+
+
+
+
 
 no_arv *c_gerarArvoreHuffman(char *nomeArq, int *tamanho) {
     no_arv *arv;
@@ -51,5 +56,23 @@ void c_descomprimirArquivo(char *narqEntrada, char *narqSaida) {
     }
 
 }
+
+
+
+/*FUNCAO RESPONSAVEL GERAR E GRAVAR A TABELA VIA METODO LEMPEL-ZIV.*/
+void gravarTabela(tab *pinicioTabela){
+    reg pinicio = NULL;
+    reg p2 = NULL;
+    int cont;
+    int maiorIndice = 0;
+    criarArvore(&pinicio, &maiorIndice);
+    for (cont = 0; cont < maiorIndice; cont++){
+        buscarNaArvore( pinicio ,cont, pinicioTabela, p2);
+    }
+}
+
+
+
+
 
 

@@ -1,31 +1,32 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../Tipos.h"
+#include "Controle.h"
 
-typedef struct registro *reg;
+tab* criarTabela(tab*, int , char , int );
+int buscarNaArvore(reg , int , tab* , reg);
 
-struct registro{
-    char letraRaiz;
-    reg *filhas;
-    reg *prox;
-    int indice;
-};
 
-//cria uma lista encadeada com a sequencia de caracter do codigo LZ
-void criarLista(FILE *arq, reg *pretorno){
+void criarArvore( reg*, int* );
+int corrigirArvore(reg , int* );
+
+/*A PARTIR DE UM ARQUIVO TEXTO, ESSA FUNCAO CRIA UMA ARVORE GENERICA,
+IRMAOS(PROX) E FILHAS, CADA FILHA REPRESENTADO UM CHAR*/
+void criarArvore(reg *pretorno, int* maiorContador){
+
+    FILE *arq = fopen("testando.txt","r");
     char caracter;
-
     reg pinicio = *pretorno;
     reg p1 = NULL;
     int achou = 0;
     int acabouArvore = 0;
     int fimLinha = 0;
-    int contadorIndice = 0;
+    int contadorIndice = *maiorContador;
 
-    
     while((caracter = getc(arq)) != EOF){
-        printf("\n                                   %c\n", caracter);
         if(pinicio == NULL){
+
             pinicio = malloc(sizeof(reg));
             pinicio->prox = NULL;
             pinicio->filhas = NULL;
@@ -59,12 +60,10 @@ void criarLista(FILE *arq, reg *pretorno){
 
                     
                 }else{
-                    printf("andando para as filhas");
                     caracter = getc(arq);
                     if (p1->filhas != NULL){
                         p1 = *p1->filhas;                        
                     }else{
-                        printf("%c\n", caracter);
                         acabouArvore = 1;
                         p1->filhas = malloc(sizeof(reg));
                         p1 = *p1->filhas;
@@ -73,8 +72,6 @@ void criarLista(FILE *arq, reg *pretorno){
                         p1->indice = contadorIndice;
                         p1->filhas = NULL;
                         p1->prox = NULL;
-                        //caracter = getc(arq);
-                        printf("%c\n", caracter);
                     }
                     achou = 0;
                 }
@@ -82,67 +79,105 @@ void criarLista(FILE *arq, reg *pretorno){
             acabouArvore = 0;
             p1 = pinicio;
         }
-        printf("sai da arvore\n");
     }
-    printf("chega aqui?");
+    corrigirArvore(pinicio, &contadorIndice);
     *pretorno = pinicio;
+    *maiorContador = contadorIndice;
 }
 
-int contarTamanhoDaLista(reg pinicio){
-    int cont = 0;
-    reg p1 = pinicio;
-    while (p1 != NULL){
-        cont = cont + 1;
-        p1 = *p1->prox;
-    }
-    free(p1);
-    return cont;
-}
 
-int main(){
-
-    FILE *arq = fopen("teste.txt","r");
-    reg pinicio = NULL;
-
-    criarLista(arq, &pinicio);
-    reg p1 = pinicio;
-
-    while(p1->prox != NULL){
-        printf("%c\n",p1->letraRaiz);
-        printf("%d", p1->indice);
-        p1 = *p1->prox;
-    }
-        printf("%c\n",p1->letraRaiz);
-        printf("%d", p1->indice);
-
-printf("\n\n");
-reg p2 = pinicio;
-p1 = *p2->filhas;
-while (p2->prox != NULL){
-printf("\n\n");
-    while(p1->prox != NULL){
-        printf("%c\n",p1->letraRaiz);
-        printf("%d", p1->indice);
-        p1 = *p1->prox;
-    }
-        printf("%c\n",p1->letraRaiz);
-        printf("%d", p1->indice);
-    p2 = *p2->prox;
-    while(p2->filhas == NULL){
-        p2 = *p2->prox;
-    }
-        p1 = *p2->filhas;    
-
-
-}
-while(p1->prox != NULL){
-        printf("%c\n",p1->letraRaiz);
-        p1 = *p1->prox;
-    }
-        printf("%c\n",p1->letraRaiz);
-
-    int a = 1;
-    scanf("%d",a);
+/*ESSA FUNCAO GARANTE QUE O ULTIMO ELEMENTO DO INDICE NAO E O EOF,
+E DESALOCA A MEMORIA USADA POR ELE*/
+int corrigirArvore(reg pinicio, int* maiorContador){
     
-return 0;
+    int achou = 0;
+    if (pinicio != NULL){
+        if(pinicio->indice == *maiorContador){
+            if(pinicio->letraRaiz == EOF){
+                free(pinicio);
+                *maiorContador = *maiorContador - 1;
+            }
+            achou = 1;
+        }
+        if(achou == 0){
+            if(pinicio->prox != NULL){
+               achou = corrigirArvore(*pinicio->prox, maiorContador);
+            }
+        }
+        if(achou == 0){
+            if(pinicio->filhas != NULL){
+               achou = corrigirArvore(*pinicio->filhas, maiorContador);
+            }
+        }
+    return achou;
+    }
 }
+
+/*FAZ UMA BUSCA RECURSIVA NA ARVORE EM BUSCA DO INDICE EM QUESTAO, PERMITINDO A CONSTRUCAO DA 
+LISTA QUE GERARA A TABELA*/
+int buscarNaArvore(reg pinicio, int cont, tab *pinicioTabela, reg p2){
+    int achou = 0;
+    if (pinicio != NULL){
+
+        if(pinicio->indice == cont){
+            if(p2 != NULL){
+                pinicioTabela = criarTabela(pinicioTabela, pinicio->indice, pinicio->letraRaiz, p2->indice);
+            }else{
+
+                pinicioTabela = criarTabela(pinicioTabela, pinicio->indice, pinicio->letraRaiz, 0);
+            }
+            achou = 1;
+        }
+        if(achou == 0){
+            if(pinicio->prox != NULL){
+               achou = buscarNaArvore(*pinicio->prox, cont, pinicioTabela, p2);
+            }
+        }
+        if (achou == 0){
+            if(pinicio->filhas != NULL){
+                achou = buscarNaArvore(*pinicio->filhas, cont, pinicioTabela, pinicio);
+            }
+        }
+    return achou;
+    }
+}
+
+/*GRAVA UMA LISTA ENCADEADA A PARTIR DA ARVORE PARA POSSIBILITAR A GRAVACAO EM DISCO DA TABELA.*/
+tab* criarTabela(tab *pinicioTabela, int indice, char letraRaiz, int indiceAnterior){
+
+    tab pinicio = *pinicioTabela;
+    if (pinicio == NULL){
+        pinicio = malloc(sizeof(tab));
+        pinicio->prox = NULL;
+        pinicio->indiceAnterior = indiceAnterior;
+        pinicio->indice = indice;
+        pinicio->letraRaiz = letraRaiz;
+    }else{
+        tab pCaminha = pinicio;
+        while ((pCaminha->prox) != NULL){
+            pCaminha = *pCaminha->prox;
+        }
+        tab p1 = malloc(sizeof(tab));
+        p1->prox = NULL;
+        pCaminha->prox = &p1;
+        p1->indiceAnterior = indiceAnterior;
+        p1->indice = indice;
+        p1->letraRaiz = letraRaiz;
+    }
+    return pinicioTabela;
+}
+
+void compactarLempelZiv(tab pinicioTabela){
+    FILE *arq = fopen("escrita","w");
+    tab p1 = pinicioTabela;
+    int bits = 0;
+
+    while(p1->prox != NULL){
+        fwrite(&(p1)->indiceAnterior, (bits*2),1, arq);
+        fwrite(&(p1)->letraRaiz, sizeof(char),1, arq);
+        
+    }
+    close(arq);
+}
+
+
