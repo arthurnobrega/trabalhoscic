@@ -3,8 +3,8 @@
 #define TAM_MAX 256
 
 typedef struct no_arv no_arv;
-typedef struct registro *reg;
-typedef struct tabela *tab;
+typedef struct reg reg;
+typedef struct tab tab;
 
 
 /** Estrutura do nó da árvore/lista de Huffman. */
@@ -20,15 +20,15 @@ struct no_arv {
 };
 
 
-struct registro {
+struct reg {
     char letraRaiz;
-    reg *filhas;
-    reg *prox;
+    struct reg *filhas;
+    struct reg *prox;
     int indice;
 };
 
-struct tabela {
-    tab *prox;
+struct tab {
+    struct tab *prox;
     int indice;
     char letraRaiz;
     int indiceAnterior;

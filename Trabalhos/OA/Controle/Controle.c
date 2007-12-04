@@ -55,20 +55,24 @@ void c_descomprimirArquivo(char *narqEntrada, char *narqSaida) {
 
 }
 
-/*FUNCAO RESPONSAVEL GERAR E GRAVAR A TABELA VIA METODO LEMPEL-ZIV.*/
-void gravarTabela(tab *pinicioTabela){
-    reg pinicio = NULL;
-    reg p2 = NULL;
-    int cont;
-    int maiorIndice = 0;
-    criarArvore(&pinicio, &maiorIndice);
-    for (cont = 0; cont < maiorIndice; cont++){
-        buscarNaArvore( pinicio ,cont, pinicioTabela, p2);
+/** FUNCAO RESPONSAVEL GERAR E GRAVAR A TABELA VIA METODO LEMPEL-ZIV. */
+tab *c_gerarTabelaLZ(char *nomeArq) {
+    tab *pinicioTabela = NULL;
+    reg *pinicio = NULL, *p1 = NULL, *pai = NULL;
+    int cont, maiorIndice = 0;
+    FILE *arq;
+
+    if ((arq= fopen(nomeArq, "r")) != NULL) {
+	pinicio = criarArvore(arq, &maiorIndice);
+	for (cont = 1; cont <= maiorIndice; cont++) {
+	    pai = NULL;
+	    p1 = buscarIndice(pai, pinicio, cont);
+	    if (pai != NULL) {
+	    criarTabela(pinicioTabela, p1->indice, p1->letraRaiz, pai->indice);
+	    } else {
+		criarTabela(pinicioTabela, p1->indice, p1->letraRaiz, 0);
+	    }
+	}
     }
+    return pinicioTabela;
 }
-
-
-
-
-
-
