@@ -2,13 +2,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "../Persistencia/Arquivos.h"
 #include "Huffman.h"
 
 no_arv *lerTabelaHuffman(FILE *arqEntrada);
 void reconstruirArvoreHuffman(no_arv *arv, char caractere, char *codigo, int profundidade);
 void escreverArquivoTexto(FILE *arqEntrada, FILE *arqSaida, no_arv *arv);
 
+/** Função para descomprimir arquivos compactados com Huffman ou Lempel-Ziv. */
 void descomprimir(FILE *arqEntrada, FILE *arqSaida) {
     char ch;
     no_arv *arv;
@@ -25,6 +25,7 @@ void descomprimir(FILE *arqEntrada, FILE *arqSaida) {
     fclose(arqSaida);
 }
 
+/* Esta função lê a tabela(cabeçalho) do arquivo compactado com o algoritmo de Huffman e já vai reconstruindo a árvore a cada caractere e código encontrado. */
 no_arv *lerTabelaHuffman(FILE *arqEntrada) {
     char ch, caractere, codigo[TAM_MAX], nroLinhas;
     int i, tamanho;
@@ -46,6 +47,7 @@ no_arv *lerTabelaHuffman(FILE *arqEntrada) {
     return arv;
 }
 
+/* Função que reconstroi a árvore de Huffman apenas com os nós que realmente contêm caracteres, os outros não são preenchidos. */
 void reconstruirArvoreHuffman(no_arv *arv, char caractere, char *codigo, int profundidade) {
     no_arv *paux, *pnovo;
     int i;
@@ -75,6 +77,7 @@ void reconstruirArvoreHuffman(no_arv *arv, char caractere, char *codigo, int pro
     paux->caractere = caractere;
 }
 
+/* Função que escreve o arquivo texto com o texto originalmente compactado. */
 void escreverArquivoTexto(FILE *arqEntrada, FILE *arqSaida, no_arv *arv) {
     char ch[3], vetorCod[TAM_MAX];
     unsigned char caux;

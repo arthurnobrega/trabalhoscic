@@ -9,6 +9,7 @@ void gravarCodificacao(FILE *arqEntrada, FILE *arqSaida, no_arv *arv);
 unsigned char buffer = 0;
 int tamanhoBuffer = 0;
 
+/** Constroi a lista de caracteres com as respectivas frequências. */
 no_arv *construirLista(FILE *arq, int *tamanho) {
     int achou = 0;
     char ch;
@@ -58,6 +59,7 @@ no_arv *construirLista(FILE *arq, int *tamanho) {
     return pinicio;
 }
 
+/* Função que ordena a lista passada como parâmetro por caractere. */
 no_arv *ordenarLista(no_arv *pinicio, int tamanho) {
     int i = 0, j = 0;
     no_arv *paux, *paux2;
@@ -88,6 +90,7 @@ no_arv *ordenarLista(no_arv *pinicio, int tamanho) {
     return pinicio;
 }
 
+/** Constroi a árvore de acordo com o algoritmo de Huffman. */
 no_arv *construirArvore(no_arv *pinicio, int tamanho) {
     no_arv *paux, *pnovo;
 
@@ -115,6 +118,7 @@ no_arv *construirArvore(no_arv *pinicio, int tamanho) {
     return pinicio;
 }
 
+/** Gera os códigos para os nós de acordo com a posição dos mesmos na árvore. */
 void gerarCodigos(no_arv *arv, int profundidade, char *codigo) {
     if (arv->esq == NULL)  {
 	strcpy(arv->codigo, codigo);
@@ -129,6 +133,7 @@ void gerarCodigos(no_arv *arv, int profundidade, char *codigo) {
     }
 }
 
+/** Busca o nó com o caractere passado como parâmetro. */
 no_arv *buscarNoCaractere(no_arv *arv, char caractere) {
     no_arv *no;
     if (arv->esq == NULL) {
@@ -145,6 +150,7 @@ no_arv *buscarNoCaractere(no_arv *arv, char caractere) {
     return NULL;
 }
 
+/** Busca o nó com o código passado como parâmetro. */
 no_arv *buscarNoCodigo(no_arv *arv, char *codigo, int profundidade) {
     no_arv *paux;
     int i;
@@ -165,6 +171,7 @@ no_arv *buscarNoCodigo(no_arv *arv, char *codigo, int profundidade) {
     return NULL;
 }
 
+/** Compacta o arquivo utilizando Huffman. */
 void compactarArquivoHuffman(FILE *arqEntrada, FILE *arqSaida, no_arv *arv, int tamanho) {
     char tam;
 
@@ -178,6 +185,7 @@ void compactarArquivoHuffman(FILE *arqEntrada, FILE *arqSaida, no_arv *arv, int 
     fclose(arqSaida);
 }
 
+/* Grava no arquivo a tabela(cabeçalho) necessária para a descompactação. */
 void gravarTabelaCodigos(FILE *arqSaida, no_arv *arv) {
     if (arv->esq == NULL) {
 	int profundidade, i;
@@ -194,6 +202,7 @@ void gravarTabelaCodigos(FILE *arqSaida, no_arv *arv) {
     }
 }
 
+/* Grava os códigos dos caracteres utilizando-se de um buffer. */
 void gravarCodificacao(FILE *arqEntrada, FILE *arqSaida, no_arv *arv) {
     char ch, chprox;
     no_arv *no;

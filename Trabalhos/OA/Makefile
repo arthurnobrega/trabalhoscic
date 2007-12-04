@@ -1,10 +1,9 @@
 CONT = Controle/*
 VIS = Visualizacao/*
-PERS = Persistencia/*
-DEPS = Main.c Tipos.h $(CONT) $(VIS) $(PERS)
+DEPS = Main.c Tipos.h $(CONT) $(VIS)
 
 programa: $(DEPS)
-	gcc -o programa -O3 Main.c Controle/*.c Persistencia/*.c Visualizacao/*.c
+	gcc -o programa -O3 Main.c Controle/*.c Visualizacao/*.c
 
 debug: $(DEPS)
-	gcc -o programa_debug -g -Wall Main.c Controle/*.c Persistencia/*.c Visualizacao/*.c
+	gcc -o programa_debug -g -Wall Main.c Controle/*.c Visualizacao/*.c

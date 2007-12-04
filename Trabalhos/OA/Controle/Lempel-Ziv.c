@@ -3,19 +3,13 @@
 #include <string.h>
 #include "../Tipos.h"
 #include "Controle.h"
-
-tab* criarTabela(tab*, int , char , int );
-int buscarNaArvore(reg , int , tab* , reg);
-
-
-void criarArvore( reg*, int* );
-int corrigirArvore(reg , int* );
+#include "Lempel-Ziv.h"
 
 /*A PARTIR DE UM ARQUIVO TEXTO, ESSA FUNCAO CRIA UMA ARVORE GENERICA,
 IRMAOS(PROX) E FILHAS, CADA FILHA REPRESENTADO UM CHAR*/
 void criarArvore(reg *pretorno, int* maiorContador){
 
-    FILE *arq = fopen("testando.txt","r");
+    FILE *arq = fopen("teste.txt","r");
     char caracter;
     reg pinicio = *pretorno;
     reg p1 = NULL;
@@ -109,12 +103,11 @@ int corrigirArvore(reg pinicio, int* maiorContador){
                achou = corrigirArvore(*pinicio->filhas, maiorContador);
             }
         }
-    return achou;
     }
+    return achou;
 }
 
-/*FAZ UMA BUSCA RECURSIVA NA ARVORE EM BUSCA DO INDICE EM QUESTAO, PERMITINDO A CONSTRUCAO DA 
-LISTA QUE GERARA A TABELA*/
+/*FAZ UMA BUSCA RECURSIVA NA ARVORE EM BUSCA DO INDICE EM QUESTAO, PERMITINDO A CONSTRUCAO DA LISTA QUE GERARA A TABELA*/
 int buscarNaArvore(reg pinicio, int cont, tab *pinicioTabela, reg p2){
     int achou = 0;
     if (pinicio != NULL){
@@ -138,8 +131,8 @@ int buscarNaArvore(reg pinicio, int cont, tab *pinicioTabela, reg p2){
                 achou = buscarNaArvore(*pinicio->filhas, cont, pinicioTabela, pinicio);
             }
         }
-    return achou;
     }
+    return achou;
 }
 
 /*GRAVA UMA LISTA ENCADEADA A PARTIR DA ARVORE PARA POSSIBILITAR A GRAVACAO EM DISCO DA TABELA.*/
@@ -177,7 +170,7 @@ void compactarLempelZiv(tab pinicioTabela){
         fwrite(&(p1)->letraRaiz, sizeof(char),1, arq);
         
     }
-    close(arq);
+    fclose(arq);
 }
 
 
