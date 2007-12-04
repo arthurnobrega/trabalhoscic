@@ -1,7 +1,6 @@
 #ifndef TIPOS_H
 #define TIPOS_H
 #define TAM_MAX 256
-#define CAR_MARC -1
 
 typedef struct no_arv no_arv;
 typedef struct registro *reg;
@@ -21,14 +20,14 @@ struct no_arv {
 };
 
 
-struct registro{
+struct registro {
     char letraRaiz;
     reg *filhas;
     reg *prox;
     int indice;
 };
 
-struct tabela{
+struct tabela {
     tab *prox;
     int indice;
     char letraRaiz;

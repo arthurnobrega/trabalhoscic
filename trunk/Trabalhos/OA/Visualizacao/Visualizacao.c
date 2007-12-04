@@ -1,12 +1,14 @@
 #include "Visualizacao.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "../Controle/Controle.h"
 #include "../Tipos.h"
 
-void mostrarTabela(no_arv *arv, int tamanho);
-void mostrarCodigos(no_arv *arv);
+void mostrarTabelaHuffman(no_arv *arv, int tamanho);
+void mostrarCodigosHuffman(no_arv *arv);
 
+/** Mostra o menu ao usuário. */
 void mostrarMenu() {
     char comando[TAM_MAX] = "";
     printf("\n-> Lista de Comandos:\n");
@@ -31,7 +33,7 @@ void mostrarMenu() {
 	    scanf("%s", comando);
 	    // Testar se o arquivo existe
 	    arv = c_gerarArvoreHuffman(comando, &tamanho);
-	    mostrarTabela(arv, tamanho);
+	    mostrarTabelaHuffman(arv, tamanho);
 	} else if (!strcmp(comando, "HUFF")) {
 	    char arqEntrada[TAM_MAX], arqSaida[TAM_MAX];
 	    no_arv *arv;
@@ -42,17 +44,18 @@ void mostrarMenu() {
 	    c_compactarHuffman(arqEntrada, arqSaida, arv, &tamanho);
 	    printf("Arquivo compactado e salvo com sucesso!\n");
 	} else if (!strcmp(comando, "DIC_LZ")) {
-        tab tabelaLempelZiv = NULL;
-	    gravarTabela(&tabelaLempelZiv);
-        tab p1 = tabelaLempelZiv;
+            tab tabelaLempelZiv = NULL;
 
-        printf("INDICES ANTERIOR CODIGO(TABELA ASCII)");
-        while(p1->prox != NULL){
-            printf("%-8d\n",p1->indice);
-            printf("%-9d\n",p1->indiceAnterior);
-            printf("%-20d\n",(int)p1->letraRaiz);
-        }
-        free(tabelaLempelZiv);
+	    gravarTabela(&tabelaLempelZiv);
+            tab p1 = tabelaLempelZiv;
+
+            printf("INDICES ANTERIOR CODIGO(TABELA ASCII)");
+            while(p1->prox != NULL) {
+		printf("%-8d\n",p1->indice);
+		printf("%-9d\n",p1->indiceAnterior);
+		printf("%-20d\n",(int)p1->letraRaiz);
+            }
+            free(tabelaLempelZiv);
 	} else if (!strcmp(comando, "LZ")) {
 	    
 	} else if (!strcmp(comando, "DESC")) {
@@ -70,14 +73,16 @@ void mostrarMenu() {
     }
 }
 
-void mostrarTabela(no_arv *arv, int tamanho) {
+/* Mostra a tabela de Huffman na tela. */
+void mostrarTabelaHuffman(no_arv *arv, int tamanho) {
     printf("--------Tabela de Códigos---------\n");
     printf("%d\n", tamanho);
-    mostrarCodigos(arv);
+    mostrarCodigosHuffman(arv);
     printf("----------------------------------\n");
 }
 
-void mostrarCodigos(no_arv *arv) {
+/* Mostra os caracteres e seus respectivos códigos da tabela de Huffman. */
+void mostrarCodigosHuffman(no_arv *arv) {
     if (arv->esq == NULL) {
 	int profundidade, i;
 	printf("%d ",arv->caractere);
@@ -87,7 +92,7 @@ void mostrarCodigos(no_arv *arv) {
 	}
 	putc('\n', stdout);
     } else {
-	mostrarCodigos(arv->esq);
-	mostrarCodigos(arv->dir);
+	mostrarCodigosHuffman(arv->esq);
+	mostrarCodigosHuffman(arv->dir);
     }
 }
