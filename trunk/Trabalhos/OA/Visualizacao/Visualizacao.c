@@ -7,6 +7,7 @@
 
 void mostrarTabelaHuffman(no_arv *arv, int tamanho);
 void mostrarCodigosHuffman(no_arv *arv);
+void mostrarTabelaLempelZiv(tab *pinicio);
 
 /** Mostra o menu ao usuário. */
 void mostrarMenu() {
@@ -44,18 +45,13 @@ void mostrarMenu() {
 	    c_compactarHuffman(arqEntrada, arqSaida, arv, &tamanho);
 	    printf("Arquivo compactado e salvo com sucesso!\n");
 	} else if (!strcmp(comando, "DIC_LZ")) {
-            tab tabelaLempelZiv = NULL;
+            tab *pinicio = NULL;
+	    char arqEntrada[TAM_MAX];
 
-	    gravarTabela(&tabelaLempelZiv);
-            tab p1 = tabelaLempelZiv;
-
-            printf("INDICES ANTERIOR CODIGO(TABELA ASCII)");
-            while(p1->prox != NULL) {
-		printf("%-8d\n",p1->indice);
-		printf("%-9d\n",p1->indiceAnterior);
-		printf("%-20d\n",(int)p1->letraRaiz);
-            }
-            free(tabelaLempelZiv);
+	    scanf("%s", arqEntrada);
+	    pinicio = c_gerarTabelaLZ(arqEntrada);
+	    mostrarTabelaLempelZiv(pinicio);
+            free(pinicio);
 	} else if (!strcmp(comando, "LZ")) {
 	    
 	} else if (!strcmp(comando, "DESC")) {
@@ -95,4 +91,16 @@ void mostrarCodigosHuffman(no_arv *arv) {
 	mostrarCodigosHuffman(arv->esq);
 	mostrarCodigosHuffman(arv->dir);
     }
+}
+
+void mostrarTabelaLempelZiv(tab *pinicio) {
+    tab *p1 = pinicio;
+
+    printf("---INDICES ANTERIOR CODIGO(TABELA ASCII)---");
+    while(p1->prox != NULL) {
+	printf("%-8d\n",p1->indice);
+	printf("%-9d\n",p1->indiceAnterior);
+	printf("%-20d\n",(int)p1->letraRaiz);
+    }
+    printf("----------------------------------\n");
 }
