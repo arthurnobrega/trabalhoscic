@@ -59,12 +59,13 @@ void mostrarMenu() {
 		free(tabelaLempelZiv);
 	    }
 	} else if (!strcmp(comando, "LZ")) {
-	    char arqEntrada[TAM_MAX];
+	    char arqEntrada[TAM_MAX], arqSaida[TAM_MAX];
 	    
 	    scanf("%s", arqEntrada);
+	    scanf("%s", arqSaida);
 	    gravarTabela(arqEntrada);
 	    tab* pinicio = resgatarTabela();
-	    c_compactarLempelZiv(pinicio);
+	    c_compactarLempelZiv(pinicio, arqSaida);
 	    // Limpa a memória.
 	    free(pinicio);
 	} else if (!strcmp(comando, "DESC")) {
