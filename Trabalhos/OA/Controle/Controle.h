@@ -4,8 +4,7 @@
 
 /** Gera a árvore de Huffman. 
  * nomeArq: nome do arquivo onde se encontra o texto que se quer gerar a árvore de Huffman.
- * tamanho: pont} (gdb) 20 sleep(1); ...
-sourceware.org/ml/gdb/2003-03/msg0eiro para um inteiro onde será armazenado o número de caracteres no texto.
+ * tamanho: ponteiro para um inteiro onde será armazenado o número de caracteres no texto.
 */
 no_arv *c_gerarArvoreHuffman(char *nomeArq, int *tamanho);
 

@@ -204,13 +204,12 @@ void gravarTabelaCodigos(FILE *arqSaida, no_arv *arv) {
 
 /* Grava os códigos dos caracteres utilizando-se de um buffer. */
 void gravarCodificacao(FILE *arqEntrada, FILE *arqSaida, no_arv *arv) {
-    char ch, chprox;
+    char ch;
     no_arv *no;
     int i;
 
     ch = fgetc(arqEntrada);
-    chprox = fgetc(arqEntrada);
-    while (chprox != EOF) {
+    while (!feof(arqEntrada)) {
 	no = buscarNoCaractere(arv, ch);
 	for (i = 0; i <= no->profundidade - 1; i++) {
 	    buffer <<= 1;
@@ -224,8 +223,7 @@ void gravarCodificacao(FILE *arqEntrada, FILE *arqSaida, no_arv *arv) {
 		tamanhoBuffer = 0;
 	    }
 	}
-	ch = chprox;
-	chprox = fgetc(arqEntrada);
+	ch = fgetc(arqEntrada);
     }
     buffer <<= 8 - tamanhoBuffer;
     fputc(buffer, arqSaida);
