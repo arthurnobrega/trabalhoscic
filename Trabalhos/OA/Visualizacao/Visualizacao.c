@@ -65,7 +65,10 @@ void mostrarMenu() {
             free(tabelaLempelZiv);
         }
 	} else if (!strcmp(comando, "LZ")) {
-	    
+	    gravarTabela();
+        tab* pinicio = resgatarTabela();
+        compactarLempelZiv(pinicio);
+        free(pinicio);
 	} else if (!strcmp(comando, "DESC")) {
 	    char arqEntrada[TAM_MAX], arqSaida[TAM_MAX];
 
