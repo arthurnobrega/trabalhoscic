@@ -26,5 +26,5 @@ void c_descomprimirArquivo(char *narqEntrada, char *narqSaida);
 
 int gravarTabela(char* arqEntrada);
 tab *resgatarTabela();
-void c_compactarLempelZiv(tab *pinicio);
+void c_compactarLempelZiv(tab *pinicio, char* narqSaida);
 #endif

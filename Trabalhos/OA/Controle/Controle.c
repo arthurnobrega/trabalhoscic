@@ -85,6 +85,9 @@ tab *resgatarTabela() {
     return pinicio;
 }
 
-void c_compactarLempelZiv(tab *pinicio) {
-    compactarLempelZiv(pinicio);
+void c_compactarLempelZiv(tab *pinicio, char* narqSaida) {
+    FILE *arqSaida;
+    if ((arqSaida = fopen(narqSaida, "wb")) != NULL) {
+	compactarLempelZiv(pinicio, arqSaida);
+    }
 }

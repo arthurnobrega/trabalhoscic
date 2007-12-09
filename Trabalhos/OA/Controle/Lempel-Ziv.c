@@ -149,12 +149,11 @@ int buscarNaArvore(reg p, int cont, reg* p2){
 }
 
 
-void compactarLempelZiv(tab* pinicioTabela){
-
-    FILE *arq = fopen("escrita","w");
+void compactarLempelZiv(tab* pinicioTabela, FILE *arq){
     tab* p1 = pinicioTabela->prox;
     int numBits = 1;
     int numeroDeBitsTotal = 0;
+
     putc('L',arq);
     putc('\n', arq);
     fwrite(&numeroDeBitsTotal, sizeof(int),1,arq);
