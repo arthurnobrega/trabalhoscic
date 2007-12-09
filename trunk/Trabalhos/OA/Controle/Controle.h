@@ -24,6 +24,7 @@ void c_compactarHuffman(char *narqEntrada, char *narqSaida, no_arv *arv, int *ta
 void c_descomprimirArquivo(char *narqEntrada, char *narqSaida);
 
 
-int gravarTabela(char[TAM_MAX]);
-tab* resgatarTabela(void);
+int gravarTabela(char* arqEntrada);
+tab *resgatarTabela();
+void c_compactarLempelZiv(tab *pinicio);
 #endif

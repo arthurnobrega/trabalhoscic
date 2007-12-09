@@ -1,8 +1,10 @@
 #include "Controle.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include "Huffman.h"
 #include "Descompressao.h"
 #include "Lempel-Ziv.h"
+#include "../Persistencia/Arquivos.h"
 
 /** Gera a árvore de Huffman. */
 no_arv *c_gerarArvoreHuffman(char *nomeArq, int *tamanho) {
@@ -58,12 +60,10 @@ void c_descomprimirArquivo(char *narqEntrada, char *narqSaida) {
 /*CHAMA TODAS AS OUTRAS FUNCOES QUE TRABALHARAO DESDE A GERACAO, 
 ATE A GRAVACAO DA TABELA.*/
 int gravarTabela(char* arqEntrada){
-    int maiorIndice = 0;
-    int bytes = 0;
-    reg* pinicio = criarArvore(&maiorIndice, &bytes, arqEntrada);
-    reg* p2 = NULL;
-    int cont;
+    int maiorIndice = 0, bytes = 0, cont;
+    reg *pinicio = NULL, *p2 = NULL;
 
+    pinicio = criarArvore(&maiorIndice, &bytes, arqEntrada);
     /*ARQUIVOS.H*/
     gravarMaiorIndiceTabela(maiorIndice);
     for (cont = 1; cont <= maiorIndice; cont++){
@@ -77,9 +77,14 @@ int gravarTabela(char* arqEntrada){
 }
 
 /*INTERFACE DE BUSCA DA TABELA GERADA E GRAVADA NO ARQUIVO*/
-tab* resgatarTabela(void){
+tab *resgatarTabela() {
 
     /*ARQUIVO.H*/
-    tab* pinicio = criarTabela();
+    tab* pinicio = NULL;
+    pinicio = criarTabela();
     return pinicio;
+}
+
+void c_compactarLempelZiv(tab *pinicio) {
+    compactarLempelZiv(pinicio);
 }

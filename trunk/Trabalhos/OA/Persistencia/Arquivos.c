@@ -1,14 +1,5 @@
 #include "Arquivos.h"
-#include "../Tipos.h"
-
-int abrirArquivo(FILE *arq, char *nomeArq, char *modo) {
-
-    arq = fopen(nomeArq, modo);
-    if (arq == NULL) {
-	   return 0;
-    }
-    return 1;
-}
+#include <stdlib.h>
 
 /*GRAVA O MAIOR INDICE ENCONTRA NA ARVORE NO ARQUIVO*/
 void gravarMaiorIndiceTabela(int maiorIndice){
@@ -26,9 +17,9 @@ void gravarTabelaArq(int indice, char letra,int indiceAnterior){
     fclose(arq);
 }
 
-/*ATRAVÉS DO ARQUIVO, GERA UMA LISTA SIMPLESMENTE ENCADEADA NA QUAL ESTARÃO OS 
+/*ATRAVï¿½S DO ARQUIVO, GERA UMA LISTA SIMPLESMENTE ENCADEADA NA QUAL ESTARï¿½O OS 
 ELEMENTOS DA TABELA.*/
-tab* criarTabela(void){
+tab* criarTabela(){
 
     FILE *arq = fopen("tabela","r");
     int maiorIndice = 0;
