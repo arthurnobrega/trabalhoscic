@@ -5,9 +5,9 @@
 #include "../Controle/Controle.h"
 #include "../Tipos.h"
 
+void mostrarTabelaLempelZiv(tab *tabelaLempelZiv);
 void mostrarTabelaHuffman(no_arv *arv, int tamanho);
 void mostrarCodigosHuffman(no_arv *arv);
-void mostrarTabelaLempelZiv(tab *pinicio);
 
 /** Mostra o menu ao usuário. */
 void mostrarMenu() {
@@ -45,38 +45,28 @@ void mostrarMenu() {
 	    c_compactarHuffman(arqEntrada, arqSaida, arv, &tamanho);
 	    printf("Arquivo compactado e salvo com sucesso!\n");
 	} else if (!strcmp(comando, "DIC_LZ")) {
-        char arqEntrada[TAM_MAX];
-        scanf("%s", arqEntrada);
-        if(!fopen(arqEntrada,"r") ){
-            printf("Arquivo nao existe");
-        }else{
-            tab* tabelaLempelZiv = NULL;
-    	    gravarTabela(arqEntrada);
-            tabelaLempelZiv = resgatarTabela();
-    
-            printf("INDICE       ANTERIOR        LETRA\n");
-            printf("   0            -              -\n");
-            while(tabelaLempelZiv->prox != NULL){
-                tabelaLempelZiv = tabelaLempelZiv->prox;
-                printf("%4d",tabelaLempelZiv->indice);
-                printf("%13d",tabelaLempelZiv->indiceAnterior);
-                printf("%15c\n",tabelaLempelZiv->letraRaiz);
-            }
-            free(tabelaLempelZiv);
-        }
+	    char arqEntrada[TAM_MAX];
+	    scanf("%s", arqEntrada);
+	    if (!fopen(arqEntrada,"r") ){
+		printf("Arquivo nao existe");
+	    } else {
+		tab* tabelaLempelZiv = NULL;
+		
+		gravarTabela(arqEntrada);
+		tabelaLempelZiv = resgatarTabela();
+		mostrarTabelaLempelZiv(tabelaLempelZiv);
+		// Limpa a memória.
+		free(tabelaLempelZiv);
+	    }
 	} else if (!strcmp(comando, "LZ")) {
-        char arqEntrada[TAM_MAX];
-        char arqSaida[TAM_MAX];
-        scanf("%s", arqEntrada);
-        scanf("%s", arqSaida);
-        if(!fopen(arqEntrada,"r") ){
-            printf("Arquivo nao existe");
-        }else{
-    	    gravarTabela(arqEntrada);
-            tab* pinicio = resgatarTabela();
-            compactarLempelZiv(pinicio);
-            free(pinicio);
-        }
+	    char arqEntrada[TAM_MAX];
+	    
+	    scanf("%s", arqEntrada);
+	    gravarTabela(arqEntrada);
+	    tab* pinicio = resgatarTabela();
+	    c_compactarLempelZiv(pinicio);
+	    // Limpa a memória.
+	    free(pinicio);
 	} else if (!strcmp(comando, "DESC")) {
 	    char arqEntrada[TAM_MAX], arqSaida[TAM_MAX];
 
@@ -89,6 +79,20 @@ void mostrarMenu() {
 	} else if (strcmp(comando, "SAIR")){
 	    printf("Comando \"%s\" não encontrado.\n", comando);
 	}
+    }
+}
+
+/* Mostra a tabela de Lempel Ziv na tela. */
+void mostrarTabelaLempelZiv(tab *tabelaLempelZiv) {
+    tab *paux;
+    paux = tabelaLempelZiv;
+    printf("INDICE       ANTERIOR        LETRA\n");
+    printf("   0            -              -\n");
+    while (paux->prox != NULL) {
+	paux = paux->prox;
+	printf("%4d",paux->indice);
+	printf("%13d",paux->indiceAnterior);
+	printf("%15c\n",paux->letraRaiz);
     }
 }
 
@@ -114,16 +118,4 @@ void mostrarCodigosHuffman(no_arv *arv) {
 	mostrarCodigosHuffman(arv->esq);
 	mostrarCodigosHuffman(arv->dir);
     }
-}
-
-void mostrarTabelaLempelZiv(tab *pinicio) {
-    tab *p1 = pinicio;
-
-    printf("---INDICES ANTERIOR CODIGO(TABELA ASCII)---");
-    while(p1->prox != NULL) {
-	printf("%-8d\n",p1->indice);
-	printf("%-9d\n",p1->indiceAnterior);
-	printf("%-20d\n",(int)p1->letraRaiz);
-    }
-    printf("----------------------------------\n");
 }

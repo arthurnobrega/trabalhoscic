@@ -5,6 +5,7 @@
 #include "Controle.h"
 #include "../Persistencia/Arquivos.h"
 
+int corrigirBytes(reg p, int* maiorContador, reg* p2, int *bytes);
 
 /*A PARTIR DE UM ARQUIVO TEXTO, ESSA FUNCAO CRIA UMA ARVORE GENERICA,
 IRMAOS(PROX) E FILHAS, CADA FILHA REPRESENTADO UM CHAR*/
@@ -14,7 +15,6 @@ reg* criarArvore(int* maiorContador, int* bytes,char* arqEntrada){
     char caracter;
     reg *pinicio = NULL;
     reg *p1 = NULL;
-    reg *p2 = NULL;
     int achou = 0;
     int acabouArvore = 0;
     int fimLinha = 0;
@@ -114,6 +114,7 @@ int corrigirBytes(reg p, int* maiorContador, reg* p2, int *bytes){
         }
     return achou;
     }
+    return 0;
 }
 
 /*FAZ UMA BUSCA RECURSIVA NA ARVORE EM BUSCA DO INDICE EM QUESTAO, PERMITINDO A CONSTRUCAO DA 
@@ -144,49 +145,35 @@ int buscarNaArvore(reg p, int cont, reg* p2){
         }
     return achou;
     }
+    return 0;
 }
 
 
-
-
-
-
-
-
-
-/*FUNCAO DE COMPACTACAO UTILIZANDO O ALGORITMO LEMPELZIV. RECEBE COMO PARAMETROS UMA
-LISTA CONTENDO OS INDICES E OS SEUS RESPECTIVOS VALORES, BEM COMO O INDICE ANTERIOR.*/
 void compactarLempelZiv(tab* pinicioTabela){
 
-    FILE *arq = fopen("escrita","w"); //ARQUIVO DE SAIDA
-    tab* p1 = pinicioTabela->prox; 
-    int numBits = 1; /*MARCADOR QUE DIZ O NUMERO DE BITS QUE DEVEM SER LIDOS NO MOMENTO:
-POR EXEMPLO: O NUMBITS SERA 1 QUANDO OS VALORES QUE SE PODE ASSUMIR ESTIVEREM ENTRE 0-1*/
-    int numeroDeBitsTotal = 0; // CONTA O NUMERO DE BITS QUE O ARQUIVO COMPACTADO TERA.
+    FILE *arq = fopen("escrita","w");
+    tab* p1 = pinicioTabela->prox;
+    int numBits = 1;
+    int numeroDeBitsTotal = 0;
     putc('L',arq);
     putc('\n', arq);
     fwrite(&numeroDeBitsTotal, sizeof(int),1,arq);
     putc('\n', arq);
     fwrite(&(p1)->letraRaiz, sizeof(char),1, arq);
     numeroDeBitsTotal = numeroDeBitsTotal + 8;
-    char bits = 0; /*CARACTER QUE SEMPRE EH INICIALIZADO COM ZERO. TEM SEUS BITS ALTERADOS
-BASEANDO-SE NO NUMERO E NA LETRA. SENDO ASSIM ELE EH A SAIDA, SENDO DESCARREGADO SEMPRE
-QUE SEUS 8 BITS TIVEREM SIDO PREENCHIDOS*/
-    char bitsAux; /*ARMAZENA O INDICE ANTERIOR*/
-    char bitsAux2; /*ARMAZENA A LETRA RAIZ.*/
+    char bits = 0;
+    char bitsAux;
+    char bitsAux2;
     int i = 0;
     int j = 0;
 
-    int bitsIndice = 1; /*BOOLEANA QUE MARCA O TERMINO DA GRAVACAO DO INDICE QUE 
-FOI PEGO NA MEMORIA PARA O bits QUE IRA SER DESCARREGADO PARA O DISCO*/
-    int bitsLetra = 1; /*MESMO QUE O bitsIndice MAS COM A LETRA*/
-    int marcadorBits = 1; /*VARIAVEL DE APOIO AO numBits*/
+    int bitsIndice = 1;
+    int bitsLetra = 1;
+    int marcadorBits = 1;
 
 
-/*LE A LISTA, TABELA, INTEIRA*/
+
     while(p1->prox != NULL){
-
-/*INCREMENTA O ANDAR NA LISTA*/
         if ((bitsIndice == 1) && (bitsLetra == 1)){
             p1 = p1->prox;
             bitsAux = p1->indiceAnterior;
@@ -194,8 +181,6 @@ FOI PEGO NA MEMORIA PARA O bits QUE IRA SER DESCARREGADO PARA O DISCO*/
             bitsIndice = 0;
             bitsLetra = 0;
         }
-
-/*FAZ A INSERCAO DE CADA BIT DO INDICE, NO bits (VARIAVEL DE SAIDA)*/
         while (bitsIndice == 0){
             for(i = 0; (i < numBits) && (j < 8); i++){
                 if(((bitsAux>>i)&1) == 0){
@@ -205,15 +190,6 @@ FOI PEGO NA MEMORIA PARA O bits QUE IRA SER DESCARREGADO PARA O DISCO*/
                 }
                 j = j + 1;
             }
-
-/*EU CONSTATEI QUE PODERIAMOS TER 3 SITUACOES: 
-OU O bits ENCHE ANTES DE SE TER 
-TERMINADO DE LER OS BITS DO bitsAux TODO. NESSE CASO O BITS DEVERIA SER DESCARREGADO
-NO DISCO E REINICIALIZADO.
-OU O bitsAux TERIA TODOS SEUS BITS GRAVADOS NO bits E, PORTANTO, SERIA O MOMENTO DE COMEÇAR
-A GRAVAR O bitsAux2(QUE HOSPEDA A LETRA).
-OU OS DOIS ACABARAM JUNTOS - OCASIONARIA NAS DUAS ACOES ACIMA.
-*/
             if(i < numBits){
 
                 bits = ~bits;
@@ -235,8 +211,6 @@ OU OS DOIS ACABARAM JUNTOS - OCASIONARIA NAS DUAS ACOES ACIMA.
             } 
         }
 
-/*FAZ O MESMO QUE O LOOP ACIMA, SO QUE PARA A LETRA AGORA.*/
-
         i = 0;
         while (bitsLetra == 0){
             for(i ; (i < 8) && (j < 8); i++){
@@ -254,7 +228,7 @@ OU OS DOIS ACABARAM JUNTOS - OCASIONARIA NAS DUAS ACOES ACIMA.
                 numeroDeBitsTotal = numeroDeBitsTotal + 8;
                 bits = 0;
                 j =  0;
-            }else{
+            } else {
                 if(j < 8){
                     bitsLetra = 1;
                 }else{
@@ -268,19 +242,6 @@ OU OS DOIS ACABARAM JUNTOS - OCASIONARIA NAS DUAS ACOES ACIMA.
             }
         }
 
-/*A PARTE DE LOOPS ESTA TODA CERTA. O ARQUIVO DE SAIDA ESTA SAINDO COM 31 BYTES, 
-SENDO QUE DEVERIA SAIR COM 30: 177 bits /8 = 22bytes +1 bits. --> 1byte do 'L', 2 bytes
-por '\n', e 4 bytes pelo numero de bytes do arquivo compactado (um integer). 
-
-AI VAI OUTRA DUVIDA TAMBEM - QUANDO VOCE USA LEMPEL ZIV VOCE PODE ACONTECER DOS BITS NAO 
-SEREM MULTIPLOS DE 8, FAZENDO SOBRAR BITS. SENDO ASSIM, VOCE ACABA GRAVANDO UM BIT INTEIRO NO
-FINAL CERTO? FOI O QUE FIZ PELO MENOS.
-
-VE SE TU ENTENDE E ME FALA ANTES DE MUDAR =)*/
-
-/*O CONTADOR DE BITS QUE DEVEM SER GRAVADOS ESTA CORRETO. AQUI ELE FAZ O TESTE DO INDICE
-SENDO LIDO DA LISTA (TABELA) E VERIFICA SE O NUMERO MAXIMO DE BITS QUE DEVEM SER LIDOS ESTA
-CORRETO. ESSA FUNCAO ESTA FUNCIONANDO.*/
         if((p1->indice + 1) > 2*marcadorBits){
             numBits = numBits + 1;
             marcadorBits = marcadorBits*2;

@@ -3,11 +3,7 @@
 #include "../Tipos.h"
 #include <stdio.h>
 
-int abrirArquivo(FILE *arq, char *nomeArq, char *modo);
-
-void gravarMaiorIndiceTabela(int );
-
-
-void gravarTabelaArq(int , char ,int );
-tab* criarTabela(void);
+void gravarMaiorIndiceTabela(int maiorIndice);
+void gravarTabelaArq(int indice, char letra, int indiceAnterior);
+tab* criarTabela();
 #endif
