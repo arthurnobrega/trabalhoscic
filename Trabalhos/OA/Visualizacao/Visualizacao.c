@@ -45,7 +45,7 @@ void mostrarMenu() {
 	    c_compactarHuffman(arqEntrada, arqSaida, arv, &tamanho);
 	    printf("Arquivo compactado e salvo com sucesso!\n");
 	} else if (!strcmp(comando, "DIC_LZ")) {
-        char arqEntrada[10];
+        char arqEntrada[TAM_MAX];
         scanf("%s", arqEntrada);
         if(!fopen(arqEntrada,"r") ){
             printf("Arquivo nao existe");
@@ -65,10 +65,18 @@ void mostrarMenu() {
             free(tabelaLempelZiv);
         }
 	} else if (!strcmp(comando, "LZ")) {
-	    gravarTabela();
-        tab* pinicio = resgatarTabela();
-        compactarLempelZiv(pinicio);
-        free(pinicio);
+        char arqEntrada[TAM_MAX];
+        char arqSaida[TAM_MAX];
+        scanf("%s", arqEntrada);
+        scanf("%s", arqSaida);
+        if(!fopen(arqEntrada,"r") ){
+            printf("Arquivo nao existe");
+        }else{
+    	    gravarTabela(arqEntrada);
+            tab* pinicio = resgatarTabela();
+            compactarLempelZiv(pinicio);
+            free(pinicio);
+        }
 	} else if (!strcmp(comando, "DESC")) {
 	    char arqEntrada[TAM_MAX], arqSaida[TAM_MAX];
 
