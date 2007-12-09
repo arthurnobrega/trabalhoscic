@@ -1,211 +1,252 @@
-#include "Lempel-Ziv.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../Tipos.h"
 #include "Controle.h"
+#include "../Persistencia/Arquivos.h"
 
-reg* adicionarFilha(reg *p1, char caracter, int *contadorIndice);
 
 /*A PARTIR DE UM ARQUIVO TEXTO, ESSA FUNCAO CRIA UMA ARVORE GENERICA,
 IRMAOS(PROX) E FILHAS, CADA FILHA REPRESENTADO UM CHAR*/
-reg *criarArvore(FILE *arq, int *contadorIndice) {
+reg* criarArvore(int* maiorContador, int* bytes,char* arqEntrada){
+    
+    FILE* arq = fopen(arqEntrada, "r");
     char caracter;
-    reg *pinicio = NULL, *p1 = NULL;
-    int achou = 0, acabouArvore = 0, fimLinha = 0;
+    reg *pinicio = NULL;
+    reg *p1 = NULL;
+    reg *p2 = NULL;
+    int achou = 0;
+    int acabouArvore = 0;
+    int fimLinha = 0;
+    int contadorIndice = *maiorContador;
+    int contadorBytes = *bytes;
 
-    while(!feof(arq)) {
-	caracter = getc(arq);
-        if(pinicio == NULL) {
-            pinicio = malloc(sizeof(reg));
+    while((caracter = getc(arq)) != EOF){
+        contadorBytes = contadorBytes + 1;
+        if(pinicio == NULL){
+            pinicio = (reg*) calloc(1,sizeof(reg));
             pinicio->prox = NULL;
             pinicio->filhas = NULL;
             pinicio->letraRaiz = caracter;
-            *contadorIndice +=1;
-            pinicio->indice = *contadorIndice;
-        } else {
-	    acabouArvore = 0;
-	    p1 = pinicio;
-            while(acabouArvore == 0) {
-                while ((achou == 0)&&(fimLinha == 0)) {
-                    if(p1->letraRaiz == caracter) {
+            contadorIndice = (contadorIndice + 1);
+            pinicio->indice = contadorIndice;
+            p1 = pinicio;
+        }else{
+            while(acabouArvore == 0){
+                while ((achou == 0)&&(fimLinha == 0)){
+                    if(p1->letraRaiz == caracter){
                         achou = 1;
-                    } else {
-                        if((p1->prox) != NULL) {
+                    }else{
+                        if((p1->prox) != NULL){
                             p1 = p1->prox;
-                        } else {
+                        }else{
                             fimLinha = 1;
                         }
                     }
                 }
-                if (achou == 0) {
+                if (achou == 0){
                     acabouArvore = 1;
                     fimLinha = 0;
-                    p1->prox = malloc(sizeof(reg));
+                    p1->prox = (reg*)calloc(1,sizeof(reg));
                     p1 = p1->prox;
                     p1->letraRaiz = caracter;
-                    *contadorIndice += 1;
-                    p1->indice = *contadorIndice;
+                    contadorIndice = contadorIndice + 1;
+                    p1->indice = contadorIndice;
                     p1->prox = NULL;
                     p1->filhas = NULL;
-                } else {
+                    //p1 = p2;
+                    
+                }else{
                     caracter = getc(arq);
-		    p1 = adicionarFilha(p1, caracter, contadorIndice);
-		    while (p1 != NULL) {
-			caracter = getc(arq);
-                        p1 = adicionarFilha(p1, caracter, contadorIndice);
-		    }
-		    acabouArvore = 1;
+                    contadorBytes = contadorBytes + 1;
+                    if (p1->filhas != NULL){
+                        p1 = p1->filhas;                        
+                    }else{
+                        acabouArvore = 1;
+                        p1->filhas = (reg*)calloc(1,sizeof(reg));
+                        p1 = p1->filhas;
+                        p1->letraRaiz = caracter;
+                        contadorIndice = contadorIndice + 1;
+                        p1->indice = contadorIndice;
+                        p1->filhas = NULL;
+                        p1->prox = NULL;
+                        //p1 = p2;
+                    }
                     achou = 0;
                 }
             }
+            acabouArvore = 0;
+            p1 = pinicio;
         }
+
     }
-    /*corrigirArvore(pinicio, &contadorIndice);*/
+    corrigirBytes(*p1, &contadorIndice, NULL, &contadorBytes);
+    *bytes = contadorBytes;
+    *maiorContador = contadorIndice;
     return pinicio;
+    
 }
 
-reg* adicionarFilha(reg *p1, char caracter, int *contadorIndice) {
-    int achou = 0;
-
-    if (p1->filhas != NULL) {
-	p1 = p1->filhas;
-	while ((p1->prox != NULL) && (achou == 0)) {
-	    p1 = p1->prox;
-	    if (p1->letraRaiz == caracter) {
-		achou = 1;
-	    }
-	}
-	if (achou == 0) {
-	    p1->prox = malloc(sizeof(reg));
-	    p1 = p1->prox;
-	    p1->letraRaiz = caracter;
-	    *contadorIndice += 1;
-	    p1->indice = *contadorIndice;
-	    p1->filhas = NULL;
-	    p1->prox = NULL;
-	} else {
-            return p1;
-	}
-    } else {
-	p1->filhas = malloc(sizeof(reg));
-	p1 = p1->filhas;
-	p1->letraRaiz = caracter;
-	*contadorIndice += 1;
-	p1->indice = *contadorIndice;
-	p1->filhas = NULL;
-	p1->prox = NULL;
-    }
-    return NULL;
-}
 
 
 /*ESSA FUNCAO GARANTE QUE O ULTIMO ELEMENTO DO INDICE NAO E O EOF,
-E DESALOCA A MEMORIA USADA POR ELE
-int corrigirArvore(reg *pinicio, int *maiorContador) {
+E DESALOCA A MEMORIA USADA POR ELE*/
+int corrigirBytes(reg p, int* maiorContador, reg* p2, int *bytes){
     
+    reg* pinicio = &p;
     int achou = 0;
-    if (pinicio != NULL) {
-        if(pinicio->indice == *maiorContador) {
-            if(pinicio->letraRaiz == EOF) {
-                free(pinicio);
-                *maiorContador = *maiorContador - 1;
+    if (pinicio != NULL){
+        if(pinicio->indice == *maiorContador){
+            if(pinicio->letraRaiz == EOF){
+                *bytes = *bytes - 1;
             }
             achou = 1;
         }
-        if(achou == 0) {
-            if(pinicio->prox != NULL) {
-               achou = corrigirArvore(*pinicio->prox, maiorContador);
+        if(achou == 0){
+            if(pinicio->prox != NULL){
+               achou = corrigirBytes(*pinicio->prox, maiorContador, pinicio, bytes);
             }
         }
-        if(achou == 0) {
-            if(pinicio->filhas != NULL) {
-               achou = corrigirArvore(*pinicio->filhas, maiorContador);
+        if(achou == 0){
+            if(pinicio->filhas != NULL){
+               achou = corrigirBytes(*pinicio->filhas, maiorContador, pinicio, bytes);
             }
         }
-    }
     return achou;
-}*/
+    }
+}
 
-/*FAZ UMA BUSCA RECURSIVA NA ARVORE EM BUSCA DO INDICE EM QUESTAO, PERMITINDO A CONSTRUCAO DA LISTA QUE GERARA A TABELA
-int buscarNaArvore(reg *pinicio, int cont, tab *pinicioTabela, reg *p2) {
+/*FAZ UMA BUSCA RECURSIVA NA ARVORE EM BUSCA DO INDICE EM QUESTAO, PERMITINDO A CONSTRUCAO DA 
+LISTA QUE GERARA A TABELA*/
+int buscarNaArvore(reg p, int cont, reg* p2){
+
+    reg* pinicio = &p;
     int achou = 0;
-    if (pinicio != NULL) {
+    if (pinicio != NULL){
 
-        if(pinicio->indice == cont) {
-            if(p2 != NULL) {
-                pinicioTabela = criarTabela(pinicioTabela, pinicio->indice, pinicio->letraRaiz, p2->indice);
-            }else {
-
-                pinicioTabela = criarTabela(pinicioTabela, pinicio->indice, pinicio->letraRaiz, 0);
+        if(pinicio->indice == cont){
+            if(p2 != NULL){
+                gravarTabelaArq(pinicio->indice , pinicio->letraRaiz,p2->indice);
+            }else{
+                gravarTabelaArq(pinicio->indice , pinicio->letraRaiz,0);
             }
             achou = 1;
         }
-        if(achou == 0) {
-            if(pinicio->prox != NULL) {
-               achou = buscarNaArvore(*pinicio->prox, cont, pinicioTabela, p2);
+        if(achou == 0){
+            if(pinicio->prox != NULL){
+               achou = buscarNaArvore(*pinicio->prox, cont, p2);
             }
         }
-        if (achou == 0) {
-            if(pinicio->filhas != NULL) {
-                achou = buscarNaArvore(*pinicio->filhas, cont, pinicioTabela, pinicio);
+        if (achou == 0){
+            if(pinicio->filhas != NULL){
+                achou = buscarNaArvore(*pinicio->filhas, cont, pinicio);
             }
         }
-    }
     return achou;
-}*/
-
-reg *buscarIndice(reg *pai, reg *no, int indice) {
-    reg *p1 = NULL, *pret = NULL;
-
-    p1 = no;
-    if (p1 != NULL) {
-	if (p1->indice == indice) {
-	    return p1;
-	} else if (p1->filhas != NULL) {
-	    pret = buscarIndice(p1, p1->filhas, indice);
-	} else if (pret == NULL) {
-	    pret = buscarIndice(pai, p1->prox, indice);
-	}
-	return pret;
-    }
-    return NULL;
-}
-
-/*GRAVA UMA LISTA ENCADEADA A PARTIR DA ARVORE PARA POSSIBILITAR A GRAVACAO EM DISCO DA TABELA.*/
-void criarTabela(tab *pinicioTabela, int indice, char letraRaiz, int indiceAnterior) {
-
-    tab *pinicio = pinicioTabela;
-    if (pinicio == NULL) {
-        pinicio = malloc(sizeof(tab));
-        pinicio->prox = NULL;
-        pinicio->indiceAnterior = indiceAnterior;
-        pinicio->indice = indice;
-        pinicio->letraRaiz = letraRaiz;
-    } else {
-        tab *pCaminha = pinicio, *p1 = NULL;
-
-        while (pCaminha->prox != NULL) {
-            pCaminha = pCaminha->prox;
-        }
-        p1 = malloc(sizeof(tab));
-        p1->prox = NULL;
-        pCaminha->prox = p1;
-        p1->indiceAnterior = indiceAnterior;
-        p1->indice = indice;
-        p1->letraRaiz = letraRaiz;
     }
 }
 
-void compactarLempelZiv(tab *pinicioTabela) {
+
+void compactarLempelZiv(tab* pinicioTabela){
+
     FILE *arq = fopen("escrita","w");
-    tab *p1 = pinicioTabela;
-    int bits = 0;
+    tab* p1 = pinicioTabela->prox;
+    int numBits = 1;
+    int numeroDeBitsTotal = 0;
+    putc('L',arq);
+    putc('\n', arq);
+    fwrite(&numeroDeBitsTotal, sizeof(int),1,arq);
+    putc('\n', arq);
+    fwrite(&(p1)->letraRaiz, sizeof(char),1, arq);
+    numeroDeBitsTotal = numeroDeBitsTotal + 8;
+    char bits = 0;
+    char bitsAux;
+    char bitsAux2;
+    int i = 0;
+    int j = 0;
 
-    while(p1->prox != NULL) {
-        fwrite(&(p1)->indiceAnterior, (bits*2),1, arq);
-        fwrite(&(p1)->letraRaiz, sizeof(char),1, arq);
-        
+    int bitsIndice = 1;
+    int bitsLetra = 1;
+    int marcadorBits = 1;
+
+
+
+    while(p1->prox != NULL){
+        if ((bitsIndice == 1) && (bitsLetra == 1)){
+            p1 = p1->prox;
+            bitsAux = p1->indiceAnterior;
+            bitsAux2 = p1->letraRaiz;
+            bitsIndice = 0;
+            bitsLetra = 0;
+        }
+        while (bitsIndice == 0){
+            for(i = 0; (i < numBits) && (j < 8); i++){
+                if(((bitsAux>>i)&1) == 0){
+                    bits = (bits<<1)|1;
+                }else{
+                    bits = (bits<<1);                 
+                }
+                j = j + 1;
+            }
+            if(i < numBits){
+
+                bits = ~bits;
+                fwrite(&bits, sizeof(char), 1, arq);
+                numeroDeBitsTotal = numeroDeBitsTotal + 8;
+                bits = 0;
+                j = 0;
+            }else{
+                if(j < 8){
+                    bitsIndice = 1;
+                }else{
+                    bits = ~bits;
+                    fwrite(&bits, sizeof(char), 1, arq);
+                    numeroDeBitsTotal = numeroDeBitsTotal + 8;
+                    bits = 0;
+                    j =  0;
+                    bitsIndice = 1;
+                }
+            } 
+        }
+
+        i = 0;
+        while (bitsLetra == 0){
+            for(i ; (i < 8) && (j < 8); i++){
+                    if(((bitsAux2>>i)&1) == 0){
+                        bits = (bits<<1)|1;
+                    }else{
+                        bits = (bits<<1);
+                }
+                    j = j + 1;
+            }
+
+            if(i < 8){
+                bits = ~bits;
+                fwrite(&bits, sizeof(char), 1, arq);
+                numeroDeBitsTotal = numeroDeBitsTotal + 8;
+                bits = 0;
+                j =  0;
+            }else{
+                if(j < 8){
+                    bitsLetra = 1;
+                }else{
+                    bits = ~bits;
+                    fwrite(&bits, sizeof(char), 1, arq);
+                    numeroDeBitsTotal = numeroDeBitsTotal + 8;
+                    bits = 0;
+                    j =  0;
+                    bitsLetra = 1;
+                }
+            }
+        }
+
+        if((p1->indice + 1) > 2*marcadorBits){
+            numBits = numBits + 1;
+            marcadorBits = marcadorBits*2;
+        }
     }
+    
+    fseek(arq, 2, 0);
+    fwrite(&numeroDeBitsTotal, sizeof(int), 1, arq);
     fclose(arq);
 }
-
-
