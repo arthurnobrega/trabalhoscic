@@ -47,17 +47,13 @@ void mostrarMenu() {
 	} else if (!strcmp(comando, "DIC_LZ")) {
 	    char arqEntrada[TAM_MAX];
 	    scanf("%s", arqEntrada);
-	    if (!fopen(arqEntrada,"r") ){
-		printf("Arquivo nao existe");
-	    } else {
-		tab* tabelaLempelZiv = NULL;
-		
-		gravarTabela(arqEntrada);
-		tabelaLempelZiv = resgatarTabela();
-		mostrarTabelaLempelZiv(tabelaLempelZiv);
-		// Limpa a memória.
-		free(tabelaLempelZiv);
-	    }
+	    tab* tabelaLempelZiv = NULL;
+	    
+	    gravarTabela(arqEntrada);
+	    tabelaLempelZiv = resgatarTabela();
+	    mostrarTabelaLempelZiv(tabelaLempelZiv);
+	    // Limpa a memória.
+	    free(tabelaLempelZiv);
 	} else if (!strcmp(comando, "LZ")) {
 	    char arqEntrada[TAM_MAX], arqSaida[TAM_MAX];
 	    
