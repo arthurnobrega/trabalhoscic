@@ -55,24 +55,31 @@ void c_descomprimirArquivo(char *narqEntrada, char *narqSaida) {
 
 }
 
-/** FUNCAO RESPONSAVEL GERAR E GRAVAR A TABELA VIA METODO LEMPEL-ZIV. */
-tab *c_gerarTabelaLZ(char *nomeArq) {
-    tab *pinicioTabela = NULL;
-    reg *pinicio = NULL, *p1 = NULL, *pai = NULL;
-    int cont, maiorIndice = 0;
-    FILE *arq;
+/*CHAMA TODAS AS OUTRAS FUNCOES QUE TRABALHARAO DESDE A GERACAO, 
+ATE A GRAVACAO DA TABELA.*/
+int gravarTabela(char* arqEntrada){
+    int maiorIndice = 0;
+    int bytes = 0;
+    reg* pinicio = criarArvore(&maiorIndice, &bytes, arqEntrada);
+    reg* p2 = NULL;
+    int cont;
 
-    if ((arq= fopen(nomeArq, "r")) != NULL) {
-	pinicio = criarArvore(arq, &maiorIndice);
-	for (cont = 1; cont <= maiorIndice; cont++) {
-	    pai = NULL;
-	    p1 = buscarIndice(pai, pinicio, cont);
-	    if (pai != NULL) {
-	    criarTabela(pinicioTabela, p1->indice, p1->letraRaiz, pai->indice);
-	    } else {
-		criarTabela(pinicioTabela, p1->indice, p1->letraRaiz, 0);
-	    }
-	}
+    /*ARQUIVOS.H*/
+    gravarMaiorIndiceTabela(maiorIndice);
+    for (cont = 1; cont <= maiorIndice; cont++){
+
+        /*LEMPEL-ZIV.H*/
+        buscarNaArvore(*pinicio ,cont, p2);
     }
-    return pinicioTabela;
+    free(pinicio);
+    free(p2);
+    return bytes;
+}
+
+/*INTERFACE DE BUSCA DA TABELA GERADA E GRAVADA NO ARQUIVO*/
+tab* resgatarTabela(void){
+
+    /*ARQUIVO.H*/
+    tab* pinicio = criarTabela();
+    return pinicio;
 }

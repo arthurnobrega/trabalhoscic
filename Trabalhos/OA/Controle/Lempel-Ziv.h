@@ -3,12 +3,10 @@
 #include <stdio.h>
 #include "../Tipos.h"
 
-reg *criarArvore(FILE *arq, int *contadorIndice);
-/*int corrigirArvore(reg pinicio, int* maiorContador);*/
-reg *buscarIndice(reg *pai, reg *reg, int indice);
-
 /*FUNCOES DE GERACAO DA TABELA*/
-void criarTabela(tab *pinicioTabela, int indice, char letraRaiz, int indiceAnterior);
-int buscarNaArvore(reg *pinicio, int cont, tab *pinicioTabela, reg *p2);
+int buscarNaArvore(reg, int, reg*);
+reg* criarArvore(int*, int*, char[TAM_MAX]);
+int corrigirBytes(reg , int* , reg*, int*);
+void compactarLempelZiv(tab*);
 
 #endif

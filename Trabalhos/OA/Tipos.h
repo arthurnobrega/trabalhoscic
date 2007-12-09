@@ -1,10 +1,11 @@
 #ifndef TIPOS_H
 #define TIPOS_H
 #define TAM_MAX 256
+#define CAR_MARC -1
 
 typedef struct no_arv no_arv;
-typedef struct reg reg;
-typedef struct tab tab;
+typedef struct registro reg;
+typedef struct tabela tab;
 
 
 /** Estrutura do nó da árvore/lista de Huffman. */
@@ -20,15 +21,15 @@ struct no_arv {
 };
 
 
-struct reg {
+struct registro{
     char letraRaiz;
-    struct reg *filhas;
-    struct reg *prox;
+    reg *filhas;
+    reg *prox;
     int indice;
 };
 
-struct tab {
-    struct tab *prox;
+struct tabela{
+    tab *prox;
     int indice;
     char letraRaiz;
     int indiceAnterior;
