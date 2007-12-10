@@ -7,8 +7,7 @@
 no_arv *lerTabelaHuffman(FILE *arqEntrada);
 void reconstruirArvoreHuffman(no_arv *arv, char caractere, char *codigo, int profundidade);
 void escreverArquivoTexto(FILE *arqEntrada, FILE *arqSaida, no_arv *arv);
-
-tab* RemontarTabelaLempelZiv(void);
+tab* remontarTabelaLempelZiv(FILE *arq);
 
 /** FunÃ§Ã£o para descomprimir arquivos compactados com Huffman ou Lempel-Ziv. */
 void descomprimir(FILE *arqEntrada, FILE *arqSaida) {
@@ -21,7 +20,8 @@ void descomprimir(FILE *arqEntrada, FILE *arqSaida) {
 	arv = lerTabelaHuffman(arqEntrada);
 	escreverArquivoTexto(arqEntrada, arqSaida, arv);
     } else if (ch == 'L') {
-	
+	ch = fgetc(arqEntrada);
+	remontarTabelaLempelZiv(arqEntrada);
     }
     fclose(arqEntrada);
     fclose(arqSaida);
@@ -117,23 +117,20 @@ void escreverArquivoTexto(FILE *arqEntrada, FILE *arqSaida, no_arv *arv) {
     }
 }
 
-tab* RemontarTabelaLempelZiv(){
-    FILE *arq = fopen("escrita","r");
+tab* remontarTabelaLempelZiv(FILE *arq) {
     tab* pinicioTabela = calloc(1,sizeof(tab));
     tab* p1;
     int numeroDeBitsTotal = 0; //total de bits do arquivo
-    int i, j = 0; //variaveis de controle do bit em cada byte.
+    int i; //variaveis de controle do bit em cada byte.
     char bitsIndice = 0; //testa se jah foi gravado todo o indice na varivel
-    char bitsLetra = 0; //testa se toda a letra também foi gravada
+    char bitsLetra = 0; //testa se toda a letra tambï¿½m foi gravada
     char bitsAux = 0; //pega os oito bits do arquivo
     int contadorBits = 1; //Determina o numero de bits que devem ser lidos para o indice resgatado
     int indice = 1; //contador do indice
-    int marcadorBits = 1; //auxilia na determinação do numero de bits a serem lidos no momento
-    int cont = 0; //contador que verifica se já foi lido os 8 bits do bitsAux.
+    int marcadorBits = 1; //auxilia na determinaï¿½ï¿½o do numero de bits a serem lidos no momento
+    int cont = 0; //contador que verifica se jï¿½ foi lido os 8 bits do bitsAux.
     int comparador = 128; //usado para fins de comparacao.
 
-    getc(arq);
-    getc(arq);
     fread(&numeroDeBitsTotal, sizeof(int), 1, arq);
     getc(arq);
 
@@ -150,8 +147,8 @@ tab* RemontarTabelaLempelZiv(){
  
     while(numeroDeBitsTotal > 0){
         bitsIndice <<= 1;
-        for(i = 0; i < contadorBits; i++){
-            if(((bitsAux<<8)&comparador) != 0){
+        for (i = 0; i < contadorBits; i++) {
+            if(((bitsAux<<8) & comparador) != 0){
                 bitsIndice &=comparador;
             }
             comparador = comparador / 2;

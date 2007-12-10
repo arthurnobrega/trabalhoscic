@@ -47,23 +47,22 @@ void mostrarMenu() {
 	} else if (!strcmp(comando, "DIC_LZ")) {
 	    char arqEntrada[TAM_MAX];
 	    scanf("%s", arqEntrada);
-	    tab* tabelaLempelZiv = NULL;
-	    
-	    gravarTabela(arqEntrada);
-	    tabelaLempelZiv = resgatarTabela();
-	    mostrarTabelaLempelZiv(tabelaLempelZiv);
+	    tab* tabelaLZ = NULL;
+
+	    tabelaLZ = c_criarTabelaLempelZiv(arqEntrada);
+	    mostrarTabelaLempelZiv(tabelaLZ);
 	    // Limpa a memória.
-	    free(tabelaLempelZiv);
+	    free(tabelaLZ);
 	} else if (!strcmp(comando, "LZ")) {
 	    char arqEntrada[TAM_MAX], arqSaida[TAM_MAX];
+	    tab* tabelaLZ = NULL;
 	    
 	    scanf("%s", arqEntrada);
 	    scanf("%s", arqSaida);
-	    gravarTabela(arqEntrada);
-	    tab* pinicio = resgatarTabela();
-	    c_compactarLempelZiv(pinicio, arqSaida);
+	    tabelaLZ = c_criarTabelaLempelZiv(arqEntrada);
+	    c_compactarLempelZiv(tabelaLZ, arqSaida);
 	    // Limpa a memória.
-	    free(pinicio);
+	    free(tabelaLZ);
 	} else if (!strcmp(comando, "DESC")) {
 	    char arqEntrada[TAM_MAX], arqSaida[TAM_MAX];
 
@@ -81,15 +80,23 @@ void mostrarMenu() {
 
 /* Mostra a tabela de Lempel Ziv na tela. */
 void mostrarTabelaLempelZiv(tab *tabelaLempelZiv) {
-    tab *paux;
+    tab *paux = NULL;
+    int conv = 0;
+
     paux = tabelaLempelZiv;
     printf("INDICE       ANTERIOR        LETRA\n");
     printf("   0            -              -\n");
     while (paux->prox != NULL) {
-	paux = paux->prox;
 	printf("%4d",paux->indice);
 	printf("%13d",paux->indiceAnterior);
 	printf("%15c\n",paux->letraRaiz);
+	paux = paux->prox;
+    }
+    conv = paux->letraRaiz;
+    if (conv != 255) {
+	printf("%4d",paux->indice);
+	printf("%13d",paux->indiceAnterior);
+	printf("%15d\n",paux->letraRaiz);
     }
 }
 
