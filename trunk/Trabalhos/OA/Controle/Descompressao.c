@@ -8,6 +8,8 @@ no_arv *lerTabelaHuffman(FILE *arqEntrada);
 void reconstruirArvoreHuffman(no_arv *arv, char caractere, char *codigo, int profundidade);
 void escreverArquivoTexto(FILE *arqEntrada, FILE *arqSaida, no_arv *arv);
 
+tab* RemontarTabelaLempelZiv(void);
+
 /** FunÃ§Ã£o para descomprimir arquivos compactados com Huffman ou Lempel-Ziv. */
 void descomprimir(FILE *arqEntrada, FILE *arqSaida) {
     char ch;
@@ -113,4 +115,84 @@ void escreverArquivoTexto(FILE *arqEntrada, FILE *arqSaida, no_arv *arv) {
 	ch[1] = ch[2];
 	ch[2] = fgetc(arqEntrada);
     }
+}
+
+tab* RemontarTabelaLempelZiv(){
+    FILE *arq = fopen("escrita","r");
+    tab* pinicioTabela = calloc(1,sizeof(tab));
+    tab* p1;
+    int numeroDeBitsTotal = 0; //total de bits do arquivo
+    int i, j = 0; //variaveis de controle do bit em cada byte.
+    char bitsIndice = 0; //testa se jah foi gravado todo o indice na varivel
+    char bitsLetra = 0; //testa se toda a letra também foi gravada
+    char bitsAux = 0; //pega os oito bits do arquivo
+    int contadorBits = 1; //Determina o numero de bits que devem ser lidos para o indice resgatado
+    int indice = 1; //contador do indice
+    int marcadorBits = 1; //auxilia na determinação do numero de bits a serem lidos no momento
+    int cont = 0; //contador que verifica se já foi lido os 8 bits do bitsAux.
+    int comparador = 128; //usado para fins de comparacao.
+
+    getc(arq);
+    getc(arq);
+    fread(&numeroDeBitsTotal, sizeof(int), 1, arq);
+    getc(arq);
+
+    pinicioTabela->ant = NULL;
+    pinicioTabela->prox = NULL;
+    pinicioTabela->indiceAnterior = 0;
+    pinicioTabela->indice = indice;
+    fread(&pinicioTabela->letraRaiz, sizeof(char), 1, arq);
+    numeroDeBitsTotal = numeroDeBitsTotal - 8;
+    p1 = pinicioTabela;
+
+    fread(&bitsAux, sizeof(char), 1, arq);
+    numeroDeBitsTotal = numeroDeBitsTotal - 8;
+ 
+    while(numeroDeBitsTotal > 0){
+        bitsIndice <<= 1;
+        for(i = 0; i < contadorBits; i++){
+            if(((bitsAux<<8)&comparador) != 0){
+                bitsIndice &=comparador;
+            }
+            comparador = comparador / 2;
+            cont = cont + 1;
+            if(cont == 8){
+                fread(&bitsAux, sizeof(char), 1, arq);
+                numeroDeBitsTotal = numeroDeBitsTotal - 8;
+                cont = 0;
+                comparador = 128;
+            }
+        }
+        
+        for(i = 0; i < 8; i++){
+            bitsIndice <<= 1;
+            if(((bitsAux<<cont)&comparador) != 0){
+                bitsLetra |=1;
+            }
+            comparador = comparador/2;
+            cont = cont + 1;
+            if(cont == 8){
+                fread(&bitsAux, sizeof(char), 1, arq);
+                numeroDeBitsTotal = numeroDeBitsTotal - 8;
+                cont = 0;
+                comparador = 128;
+            }
+        }
+        indice = indice + 1;
+        p1->prox = (tab*)calloc(1, sizeof(tab));
+        p1->prox->ant = p1;
+        p1 = p1->prox;
+        p1->prox = NULL;
+        p1->indice = indice;
+        p1->letraRaiz = bitsLetra;
+        p1->indiceAnterior = (int)bitsIndice;
+
+
+        if((indice + 1) > 2*marcadorBits){
+            contadorBits = contadorBits + 1;
+            marcadorBits = marcadorBits*2;
+        }
+    }
+    fclose(arq);
+    return pinicioTabela;
 }
