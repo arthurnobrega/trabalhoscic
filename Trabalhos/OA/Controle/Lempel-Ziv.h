@@ -4,9 +4,10 @@
 #include "../Tipos.h"
 
 /*FUNCOES DE GERACAO DA TABELA*/
-reg* criarArvore(int* maiorContador, int* bytes,char* arqEntrada);
+reg* criarArvore(int* maiorContador, FILE* arq);
 int corrigirBytes(reg p, int* maiorContador, reg* p2, int *bytes);
-int buscarNaArvore(reg p, int cont, reg* p2);
+reg *buscarNaArvore(reg *pinicio, int cont, reg *p2, int *anterior);
 void compactarLempelZiv(tab* pinicioTabela, FILE *arq);
+tab *adicionarNaLista(tab *pinicio, tab *registro);
 
 #endif

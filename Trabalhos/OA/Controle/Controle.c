@@ -59,35 +59,32 @@ void c_descomprimirArquivo(char *narqEntrada, char *narqSaida) {
 
 /*CHAMA TODAS AS OUTRAS FUNCOES QUE TRABALHARAO DESDE A GERACAO, 
 ATE A GRAVACAO DA TABELA.*/
-int gravarTabela(char* arqEntrada){
-    int maiorIndice = 0, bytes = 0, cont;
-    reg *pinicio = NULL, *p2 = NULL;
+tab *c_criarTabelaLempelZiv(char* narqEntrada) {
+    int maiorIndice = 0, cont = 0, anterior = 0;
+    reg *pinicio = NULL, *p2 = NULL, *paux = NULL;
+    tab *inicioTabela = NULL, *elementoTab = NULL;
+    FILE *arqEntrada = NULL;
 
-    pinicio = criarArvore(&maiorIndice, &bytes, arqEntrada);
-    /*ARQUIVOS.H*/
-    gravarMaiorIndiceTabela(maiorIndice);
-    for (cont = 1; cont <= maiorIndice; cont++){
-
-        /*LEMPEL-ZIV.H*/
-        buscarNaArvore(*pinicio ,cont, p2);
+    if ((arqEntrada = fopen(narqEntrada, "r")) != NULL) {
+        pinicio = criarArvore(&maiorIndice, arqEntrada);
+	for (cont = 1; cont <= maiorIndice; cont++) {
+	    /*LEMPEL-ZIV.H*/
+	    paux = buscarNaArvore(pinicio, cont, p2,&anterior);
+	    elementoTab = calloc(1, sizeof(tab));
+	    elementoTab->indice = cont;
+	    elementoTab->letraRaiz = paux->letraRaiz;
+	    elementoTab->indiceAnterior = anterior;
+	    inicioTabela = adicionarNaLista(inicioTabela, elementoTab);
+	}
+    } else {
+	
     }
-    free(pinicio);
-    free(p2);
-    return bytes;
-}
-
-/*INTERFACE DE BUSCA DA TABELA GERADA E GRAVADA NO ARQUIVO*/
-tab *resgatarTabela() {
-
-    /*ARQUIVO.H*/
-    tab* pinicio = NULL;
-    pinicio = criarTabela();
-    return pinicio;
+    return inicioTabela;
 }
 
 void c_compactarLempelZiv(tab *pinicio, char* narqSaida) {
     FILE *arqSaida;
-    if ((arqSaida = fopen(narqSaida, "wb")) != NULL) {
+    if ((arqSaida = fopen(narqSaida, "w")) != NULL) {
 	compactarLempelZiv(pinicio, arqSaida);
     }
 }

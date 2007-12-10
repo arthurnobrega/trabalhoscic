@@ -13,7 +13,7 @@ struct no_arv {
     unsigned char caractere;
     int frequencia;
     int profundidade;
-    char codigo[TAM_MAX];
+    char *codigo;
     struct no_arv *ant;
     struct no_arv *prox;
     struct no_arv *esq;
@@ -21,17 +21,18 @@ struct no_arv {
 };
 
 
-struct registro{
-    char letraRaiz;
+struct registro {
+    unsigned char letraRaiz;
     reg *filhas;
     reg *prox;
     int indice;
 };
 
-struct tabela{
+struct tabela {
     tab *prox;
+    tab *ant;
     int indice;
-    char letraRaiz;
+    unsigned char letraRaiz;
     int indiceAnterior;
 };
 #endif
