@@ -149,104 +149,65 @@ int buscarNaArvore(reg p, int cont, reg* p2){
 }
 
 
-void compactarLempelZiv(tab* pinicioTabela, FILE *arq){
+void compactarLempelZiv(tab* pinicioTabela){
+
+    FILE *arq = fopen("escrita","w");
     tab* p1 = pinicioTabela->prox;
     int numBits = 1;
     int numeroDeBitsTotal = 0;
-
     putc('L',arq);
     putc('\n', arq);
     fwrite(&numeroDeBitsTotal, sizeof(int),1,arq);
     putc('\n', arq);
     fwrite(&(p1)->letraRaiz, sizeof(char),1, arq);
     numeroDeBitsTotal = numeroDeBitsTotal + 8;
-    char bits = 0;
+
     char bitsAux;
-    char bitsAux2;
+    int cont = 0;
     int i = 0;
-    int j = 0;
-
-    int bitsIndice = 1;
-    int bitsLetra = 1;
     int marcadorBits = 1;
-
-
-
+    char buffer = 0;
     while(p1->prox != NULL){
-        if ((bitsIndice == 1) && (bitsLetra == 1)){
-            p1 = p1->prox;
-            bitsAux = p1->indiceAnterior;
-            bitsAux2 = p1->letraRaiz;
-            bitsIndice = 0;
-            bitsLetra = 0;
-        }
-        while (bitsIndice == 0){
-            for(i = 0; (i < numBits) && (j < 8); i++){
-                if(((bitsAux>>i)&1) == 0){
-                    bits = (bits<<1)|1;
-                }else{
-                    bits = (bits<<1);                 
-                }
-                j = j + 1;
+        p1 = p1->prox;
+        bitsAux = p1->indiceAnterior;
+        for(i = 0; i< numBits; i++){
+            buffer <<= 1;
+            if((bitsAux <<i) == 1){
+                buffer |= 1;
             }
-            if(i < numBits){
-
-                bits = ~bits;
-                fwrite(&bits, sizeof(char), 1, arq);
-                numeroDeBitsTotal = numeroDeBitsTotal + 8;
-                bits = 0;
-                j = 0;
-            }else{
-                if(j < 8){
-                    bitsIndice = 1;
-                }else{
-                    bits = ~bits;
-                    fwrite(&bits, sizeof(char), 1, arq);
-                    numeroDeBitsTotal = numeroDeBitsTotal + 8;
-                    bits = 0;
-                    j =  0;
-                    bitsIndice = 1;
-                }
-            } 
+            cont = cont + 1;
+            if (cont == 8){
+                numeroDeBitsTotal = numeroDeBitsTotal + cont;
+                cont = 0;
+                fwrite(&buffer, sizeof(char), 1, arq);
+                buffer = 0;
+            }                
         }
-
-        i = 0;
-        while (bitsLetra == 0){
-            for(i ; (i < 8) && (j < 8); i++){
-                    if(((bitsAux2>>i)&1) == 0){
-                        bits = (bits<<1)|1;
-                    }else{
-                        bits = (bits<<1);
+        bitsAux = (char)p1->letraRaiz;
+        if(bitsAux != EOF){
+            for(i = 0; i < 8; i++){
+                buffer <<= 1;
+                if((bitsAux <<i) == 1){
+                    buffer |= 1;
                 }
-                    j = j + 1;
-            }
-
-            if(i < 8){
-                bits = ~bits;
-                fwrite(&bits, sizeof(char), 1, arq);
-                numeroDeBitsTotal = numeroDeBitsTotal + 8;
-                bits = 0;
-                j =  0;
-            } else {
-                if(j < 8){
-                    bitsLetra = 1;
-                }else{
-                    bits = ~bits;
-                    fwrite(&bits, sizeof(char), 1, arq);
-                    numeroDeBitsTotal = numeroDeBitsTotal + 8;
-                    bits = 0;
-                    j =  0;
-                    bitsLetra = 1;
+                cont = cont + 1;
+                if (cont == 8){
+                    numeroDeBitsTotal = numeroDeBitsTotal + cont;
+                    cont = 0;
+                    fwrite(&buffer, sizeof(char), 1, arq);
+                    buffer = 0;
                 }
             }
         }
-
         if((p1->indice + 1) > 2*marcadorBits){
             numBits = numBits + 1;
             marcadorBits = marcadorBits*2;
         }
     }
-    
+    if(cont != 0){
+        fwrite(&buffer, sizeof(char), 1, arq);
+        fwrite(&cont, sizeof(char), 1, arq);
+    }
     fseek(arq, 2, 0);
     fwrite(&numeroDeBitsTotal, sizeof(int), 1, arq);
     fclose(arq);
