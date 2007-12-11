@@ -104,7 +104,7 @@ reg *buscarNaArvore(reg *pinicio, int cont, reg *p2, int *anterior) {
 }
 
 
-void compactarLempelZiv(tab* pinicioTabela, FILE *arq) {
+int compactarLempelZiv(tab* pinicioTabela, FILE *arq) {
 
     tab* p1 = pinicioTabela;
     int numBits = 1;
@@ -169,6 +169,8 @@ void compactarLempelZiv(tab* pinicioTabela, FILE *arq) {
     fseek(arq, 2, 0);
     fwrite(&numeroDeBitsTotal, sizeof(int), 1, arq);
     fclose(arq);
+
+    return numeroDeBitsTotal;
 }
 
 tab *adicionarNaLista(tab *pinicio, tab *registro) {
