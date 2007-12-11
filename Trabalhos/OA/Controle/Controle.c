@@ -4,7 +4,44 @@
 #include "Huffman.h"
 #include "Descompressao.h"
 #include "Lempel-Ziv.h"
-#include "../Persistencia/Arquivos.h"
+#include "Relatorio.h"
+
+/** Descomprimi o arquivo compactado tanto com Huffman quanto com Lempel-Ziv. */
+void c_descomprimirArquivo(char *narqEntrada, char *narqSaida) {
+    FILE *arqEntrada, *arqSaida;
+
+    if ((arqEntrada = fopen(narqEntrada, "rb")) != NULL) {
+	if ((arqSaida = fopen(narqSaida, "w")) != NULL) {
+	    descomprimir(arqEntrada, arqSaida);
+	} else {
+	    
+	}
+    } else {
+	
+    }
+
+}
+
+int *c_gerarRelatorio(char* narqEntrada) {
+    int tamanho = 0;
+    no_arv *arv;
+    tab *tabelaLZ;
+    int *nroBits;
+    FILE *arqEntrada;
+
+    nroBits = calloc(3, sizeof(int));
+    if ((arqEntrada = fopen(narqEntrada, "r")) != NULL) {
+        nroBits[0] = contarNroBitsArquivo(arqEntrada);
+    }
+
+    arv = c_gerarArvoreHuffman(narqEntrada, &tamanho);
+    nroBits[1]= c_compactarHuffman(narqEntrada, "huffman", arv, &tamanho);
+
+    tabelaLZ = c_criarTabelaLempelZiv(narqEntrada);
+    nroBits[2] = c_compactarLempelZiv(tabelaLZ, "lempelziv");
+
+    return nroBits;
+}
 
 /** Gera a árvore de Huffman. */
 no_arv *c_gerarArvoreHuffman(char *nomeArq, int *tamanho) {
@@ -26,35 +63,21 @@ no_arv *c_gerarArvoreHuffman(char *nomeArq, int *tamanho) {
 }
 
 /** Compacta o arquivo com o algoritmo de Huffman. */
-void c_compactarHuffman(char *narqEntrada, char *narqSaida, no_arv *arv, int *tamanho) {
+int c_compactarHuffman(char *narqEntrada, char *narqSaida, no_arv *arv, int *tamanho) {
     FILE *arqEntrada, *arqSaida;
+    int nroBits = 0;
 
     if ((arqEntrada = fopen(narqEntrada, "r")) != NULL) {
 	if ((arqSaida = fopen(narqSaida, "wb")) != NULL) {
 	    arv = c_gerarArvoreHuffman(narqEntrada, tamanho);
-	    compactarArquivoHuffman(arqEntrada, arqSaida, arv, *tamanho);
+	    nroBits = compactarArquivoHuffman(arqEntrada, arqSaida, arv, *tamanho);
 	} else {
 	    
 	}
     } else {
 	
     }
-}
-
-/** Descomprimi o arquivo compactado tanto com Huffman quanto com Lempel-Ziv. */
-void c_descomprimirArquivo(char *narqEntrada, char *narqSaida) {
-    FILE *arqEntrada, *arqSaida;
-
-    if ((arqEntrada = fopen(narqEntrada, "rb")) != NULL) {
-	if ((arqSaida = fopen(narqSaida, "w")) != NULL) {
-	   descomprimir(arqEntrada, arqSaida);
-	} else {
-	    
-	}
-    } else {
-	
-    }
-
+    return nroBits;
 }
 
 /*CHAMA TODAS AS OUTRAS FUNCOES QUE TRABALHARAO DESDE A GERACAO, 
@@ -82,9 +105,13 @@ tab *c_criarTabelaLempelZiv(char* narqEntrada) {
     return inicioTabela;
 }
 
-void c_compactarLempelZiv(tab *pinicio, char* narqSaida) {
+int c_compactarLempelZiv(tab *pinicio, char* narqSaida) {
     FILE *arqSaida;
+    int nroBits;
+
     if ((arqSaida = fopen(narqSaida, "w")) != NULL) {
-	compactarLempelZiv(pinicio, arqSaida);
+        nroBits = compactarLempelZiv(pinicio, arqSaida);
     }
+
+    return nroBits;
 }

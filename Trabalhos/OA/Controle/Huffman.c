@@ -4,7 +4,7 @@
 
 no_arv *ordenarLista(no_arv *pinicio, int tamanho);
 void gravarTabelaCodigos(FILE *arqSaida, no_arv *arv);
-void gravarCodificacao(FILE *arqEntrada, FILE *arqSaida, no_arv *arv);
+int gravarCodificacao(FILE *arqEntrada, FILE *arqSaida, no_arv *arv);
 
 unsigned char buffer = 0;
 int tamanhoBuffer = 0;
@@ -172,17 +172,19 @@ no_arv *buscarNoCodigo(no_arv *arv, char *codigo, int profundidade) {
 }
 
 /** Compacta o arquivo utilizando Huffman. */
-void compactarArquivoHuffman(FILE *arqEntrada, FILE *arqSaida, no_arv *arv, int tamanho) {
+int compactarArquivoHuffman(FILE *arqEntrada, FILE *arqSaida, no_arv *arv, int tamanho) {
     char tam;
+    int nroBits = 0;
 
     fputs("H\n", arqSaida);
     tam = tamanho;
     fputc(tam, arqSaida);
     fputs("\n", arqSaida);
     gravarTabelaCodigos(arqSaida, arv);
-    gravarCodificacao(arqEntrada, arqSaida, arv);
+    nroBits = gravarCodificacao(arqEntrada, arqSaida, arv);
     fclose(arqEntrada);
     fclose(arqSaida);
+    return nroBits;
 }
 
 /* Grava no arquivo a tabela(cabeçalho) necessária para a descompactação. */
@@ -203,15 +205,16 @@ void gravarTabelaCodigos(FILE *arqSaida, no_arv *arv) {
 }
 
 /* Grava os códigos dos caracteres utilizando-se de um buffer. */
-void gravarCodificacao(FILE *arqEntrada, FILE *arqSaida, no_arv *arv) {
+int gravarCodificacao(FILE *arqEntrada, FILE *arqSaida, no_arv *arv) {
     char ch;
     no_arv *no;
-    int i;
+    int i, nroBits = 0;
 
     ch = fgetc(arqEntrada);
     while (!feof(arqEntrada)) {
 	no = buscarNoCaractere(arv, ch);
 	for (i = 0; i <= no->profundidade - 1; i++) {
+	    nroBits++;
 	    buffer <<= 1;
 	    if (no->codigo[i] == '1') {
 		buffer |= 1;
@@ -228,4 +231,6 @@ void gravarCodificacao(FILE *arqEntrada, FILE *arqSaida, no_arv *arv) {
     buffer <<= 8 - tamanhoBuffer;
     fputc(buffer, arqSaida);
     fputc(tamanhoBuffer, arqSaida);
+
+    return nroBits;
 }

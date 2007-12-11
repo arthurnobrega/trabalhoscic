@@ -13,7 +13,7 @@ struct no_arv {
     unsigned char caractere;
     int frequencia;
     int profundidade;
-    char *codigo;
+    char codigo[TAM_MAX];
     struct no_arv *ant;
     struct no_arv *prox;
     struct no_arv *esq;
