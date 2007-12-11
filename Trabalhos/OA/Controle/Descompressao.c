@@ -120,17 +120,21 @@ void escreverArquivoTexto(FILE *arqEntrada, FILE *arqSaida, no_arv *arv) {
 tab* remontarTabelaLempelZiv(FILE *arq) {
     tab* pinicioTabela = calloc(1,sizeof(tab));
     tab* p1;
-    int numeroDeBitsTotal = 0; //total de bits do arquivo
-    int i; //variaveis de controle do bit em cada byte.
-    unsigned char bitsIndice = 0; //testa se jah foi gravado todo o indice na varivel
-    unsigned char bitsLetra = 0; //testa se toda a letra tamb�m foi gravada
-    char bitsAux = 0; //pega os oito bits do arquivo
+    int numeroDeBitsTotal = 0;
+    int i;
+    int bitsIndice = 0;
+    unsigned char bitsLetra = 0;
+    char bitsAux = 0;
+    int bitsInversao1 = 0;
     char bitsInversao = 0;
-    int contadorBits = 1; //Determina o numero de bits que devem ser lidos para o indice resgatado
-    int indice = 1; //contador do indice
-    int marcadorBits = 1; //auxilia na determina��o do numero de bits a serem lidos no momento
-    int cont = 0; //contador que verifica se j� foi lido os 8 bits do bitsAux.
-    int comparador = 1; //usado para fins de comparacao.
+    char ultimosBits = 0;
+    int numeroDeBitsNoFinal = 0;
+    int contadorBits = 1;
+    int indice = 1; 
+    int marcadorBits = 1; 
+    int cont = 0; 
+    int comparador = 1;
+    int termino = 0;
 
     fread(&numeroDeBitsTotal, sizeof(int), 1, arq);
     printf("numero total: %d\n", numeroDeBitsTotal);
@@ -150,7 +154,7 @@ tab* remontarTabelaLempelZiv(FILE *arq) {
     numeroDeBitsTotal = numeroDeBitsTotal - 8;
 
     comparador <<= 7;
-    printf ("comparador = %d\n", comparador);
+
     while (numeroDeBitsTotal > 0) {
 	bitsIndice = 0;
 	bitsLetra = 0;
@@ -169,57 +173,61 @@ tab* remontarTabelaLempelZiv(FILE *arq) {
             }
         }
 
-        for(i = 0; i < 8; i++){
-	    bitsLetra <<= 1;
-	    if ((comparador & bitsAux) != 0) {
-		bitsLetra |= 1; 
-	    }
-            comparador = comparador / 2;
-            cont = cont + 1;
-            if(cont == 8){
-                fread(&bitsAux, sizeof(char), 1, arq);
-                numeroDeBitsTotal = numeroDeBitsTotal - 8;
-                cont = 0;
-                comparador = 128;
-            }
-        }
-	
-	bitsInversao = 0;
-	for(i = 0; i < 8; i++){
-	    bitsInversao <<= 1;
+        bitsInversao1 = 0;
+	for(i = 0; i < contadorBits; i++){
+	    bitsInversao1 <<= 1;
 	   if ((bitsIndice & 1) != 0) {
-	       bitsInversao |= 1;
+	       bitsInversao1 |= 1;
 	   }
 	   bitsIndice >>= 1;
 	}
-	bitsIndice = bitsInversao;
-	bitsInversao = 0;
-	
-	for(i = 0; i < 8; i++){
-	    bitsInversao <<= 1;
-	    if ((bitsLetra & 1) != 0) {
-		bitsInversao |= 1;
-	    }
-	    bitsLetra >>= 1;
-	}
-	bitsLetra = bitsInversao;
-	
-	
+	bitsIndice = bitsInversao1;
+
+        if (termino == 0){
+            for(i = 0; i < 8; i++){
+                bitsLetra <<= 1;
+                if ((comparador & bitsAux) != 0) {
+                    bitsLetra |= 1; 
+                }
+                comparador = comparador / 2;
+                cont = cont + 1;
+                if(cont == 8){
+                    fread(&bitsAux, sizeof(char), 1, arq);
+                    numeroDeBitsTotal = numeroDeBitsTotal - 8;
+                    cont = 0;
+                    comparador = 128;
+                }
+            }
+
+            bitsInversao = 0;
+            for(i = 0; i < 8; i++){
+                bitsInversao <<= 1;
+                if ((bitsLetra & 1) != 0) {
+                    bitsInversao |= 1;
+                }
+                bitsLetra >>= 1;
+            }
+            bitsLetra = bitsInversao;
+        }
         indice = indice + 1;
         p1->prox = (tab*)calloc(1, sizeof(tab));
         p1->prox->ant = p1;
         p1 = p1->prox;
         p1->prox = NULL;
         p1->indice = indice;
+        p1->indiceAnterior = bitsIndice;
         p1->letraRaiz = bitsLetra;
-        p1->indiceAnterior = (int)bitsIndice;
-
+	
+        if (numeroDeBitsTotal < 8){
+            termino = 1;
+        }
 
         if((indice + 1) > 2*marcadorBits){
             contadorBits = contadorBits + 1;
             marcadorBits = marcadorBits*2;
         }
     }
+
     fclose(arq);
     p1 = pinicioTabela;
     while (p1 != NULL) {
