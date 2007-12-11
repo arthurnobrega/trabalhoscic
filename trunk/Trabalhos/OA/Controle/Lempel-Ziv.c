@@ -52,7 +52,7 @@ reg* criarArvore(int* maiorContador, FILE* arq) {
                     caracter = getc(arq);
                     if (p1->filhas != NULL){
                         p1 = p1->filhas;
-                    }else{
+                    } else{
                         acabouArvore = 1;
                         p1->filhas = calloc(1,sizeof(reg));
                         p1 = p1->filhas;
