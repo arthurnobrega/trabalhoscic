@@ -122,34 +122,42 @@ tab* remontarTabelaLempelZiv(FILE *arq) {
     tab* p1;
     int numeroDeBitsTotal = 0; //total de bits do arquivo
     int i; //variaveis de controle do bit em cada byte.
-    char bitsIndice = 0; //testa se jah foi gravado todo o indice na varivel
-    char bitsLetra = 0; //testa se toda a letra tamb�m foi gravada
+    unsigned char bitsIndice = 0; //testa se jah foi gravado todo o indice na varivel
+    unsigned char bitsLetra = 0; //testa se toda a letra tamb�m foi gravada
     char bitsAux = 0; //pega os oito bits do arquivo
+    char bitsInversao = 0;
     int contadorBits = 1; //Determina o numero de bits que devem ser lidos para o indice resgatado
     int indice = 1; //contador do indice
     int marcadorBits = 1; //auxilia na determina��o do numero de bits a serem lidos no momento
     int cont = 0; //contador que verifica se j� foi lido os 8 bits do bitsAux.
-    int comparador = 128; //usado para fins de comparacao.
+    int comparador = 1; //usado para fins de comparacao.
 
     fread(&numeroDeBitsTotal, sizeof(int), 1, arq);
+    printf("numero total: %d\n", numeroDeBitsTotal);
     getc(arq);
 
     pinicioTabela->ant = NULL;
     pinicioTabela->prox = NULL;
     pinicioTabela->indiceAnterior = 0;
     pinicioTabela->indice = indice;
+
     fread(&pinicioTabela->letraRaiz, sizeof(char), 1, arq);
+    printf("pinicio: %c\n",pinicioTabela->letraRaiz );
     numeroDeBitsTotal = numeroDeBitsTotal - 8;
     p1 = pinicioTabela;
 
     fread(&bitsAux, sizeof(char), 1, arq);
     numeroDeBitsTotal = numeroDeBitsTotal - 8;
- 
-    while(numeroDeBitsTotal > 0){
-        bitsIndice <<= 1;
+
+    comparador <<= 7;
+    printf ("comparador = %d\n", comparador);
+    while (numeroDeBitsTotal > 0) {
+	bitsIndice = 0;
+	bitsLetra = 0;
         for (i = 0; i < contadorBits; i++) {
-            if(((bitsAux<<8) & comparador) != 0){
-                bitsIndice &=comparador;
+	    bitsIndice <<= 1;
+            if ((comparador & bitsAux) != 0) {
+                bitsIndice |= 1; 
             }
             comparador = comparador / 2;
             cont = cont + 1;
@@ -160,13 +168,13 @@ tab* remontarTabelaLempelZiv(FILE *arq) {
                 comparador = 128;
             }
         }
-        
+
         for(i = 0; i < 8; i++){
-            bitsIndice <<= 1;
-            if(((bitsAux<<cont)&comparador) != 0){
-                bitsLetra |=1;
-            }
-            comparador = comparador/2;
+	    bitsLetra <<= 1;
+	    if ((comparador & bitsAux) != 0) {
+		bitsLetra |= 1; 
+	    }
+            comparador = comparador / 2;
             cont = cont + 1;
             if(cont == 8){
                 fread(&bitsAux, sizeof(char), 1, arq);
@@ -175,6 +183,28 @@ tab* remontarTabelaLempelZiv(FILE *arq) {
                 comparador = 128;
             }
         }
+	
+	bitsInversao = 0;
+	for(i = 0; i < 8; i++){
+	    bitsInversao <<= 1;
+	   if ((bitsIndice & 1) != 0) {
+	       bitsInversao |= 1;
+	   }
+	   bitsIndice >>= 1;
+	}
+	bitsIndice = bitsInversao;
+	bitsInversao = 0;
+	
+	for(i = 0; i < 8; i++){
+	    bitsInversao <<= 1;
+	    if ((bitsLetra & 1) != 0) {
+		bitsInversao |= 1;
+	    }
+	    bitsLetra >>= 1;
+	}
+	bitsLetra = bitsInversao;
+	
+	
         indice = indice + 1;
         p1->prox = (tab*)calloc(1, sizeof(tab));
         p1->prox->ant = p1;
@@ -191,5 +221,12 @@ tab* remontarTabelaLempelZiv(FILE *arq) {
         }
     }
     fclose(arq);
+    p1 = pinicioTabela;
+    while (p1 != NULL) {
+	printf("%d ", p1->indice);
+	printf("%d ", p1->indiceAnterior);
+	printf("%c\n", p1->letraRaiz);
+	p1 = p1->prox;
+    }
     return pinicioTabela;
 }

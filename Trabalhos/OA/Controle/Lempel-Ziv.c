@@ -106,7 +106,7 @@ reg *buscarNaArvore(reg *pinicio, int cont, reg *p2, int *anterior) {
 
 void compactarLempelZiv(tab* pinicioTabela, FILE *arq) {
 
-    tab* p1 = pinicioTabela->prox;
+    tab* p1 = pinicioTabela;
     int numBits = 1;
     int numeroDeBitsTotal = 0;
     putc('L',arq);
@@ -114,21 +114,23 @@ void compactarLempelZiv(tab* pinicioTabela, FILE *arq) {
     fwrite(&numeroDeBitsTotal, sizeof(int),1,arq);
     putc('\n', arq);
     fwrite(&(p1)->letraRaiz, sizeof(char),1, arq);
+    printf("p1: %c\n", p1->letraRaiz);
     numeroDeBitsTotal = numeroDeBitsTotal + 8;
 
-    char bitsAux;
+    char bitsAux = 0;
     int cont = 0;
     int i = 0;
     int marcadorBits = 1;
     char buffer = 0;
     while(p1->prox != NULL){
         p1 = p1->prox;
-        bitsAux = p1->indiceAnterior;
+        bitsAux = (char)p1->indiceAnterior;
         for(i = 0; i< numBits; i++){
             buffer <<= 1;
-            if((bitsAux <<i) == 1){
+            if(bitsAux & 1){
                 buffer |= 1;
             }
+	    bitsAux >>= 1;
             cont = cont + 1;
             if (cont == 8){
                 numeroDeBitsTotal = numeroDeBitsTotal + cont;
@@ -141,9 +143,10 @@ void compactarLempelZiv(tab* pinicioTabela, FILE *arq) {
         if(bitsAux != EOF){
             for(i = 0; i < 8; i++){
                 buffer <<= 1;
-                if((bitsAux <<i) == 1){
+                if(bitsAux & 1){
                     buffer |= 1;
                 }
+		bitsAux >>= 1;
                 cont = cont + 1;
                 if (cont == 8){
                     numeroDeBitsTotal = numeroDeBitsTotal + cont;
@@ -156,8 +159,9 @@ void compactarLempelZiv(tab* pinicioTabela, FILE *arq) {
         if((p1->indice + 1) > 2*marcadorBits){
             numBits = numBits + 1;
             marcadorBits = marcadorBits*2;
-        }
+	}
     }
+    numeroDeBitsTotal = numeroDeBitsTotal + cont;
     if(cont != 0){
         fwrite(&buffer, sizeof(char), 1, arq);
         fwrite(&cont, sizeof(char), 1, arq);
