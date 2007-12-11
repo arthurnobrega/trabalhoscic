@@ -29,6 +29,6 @@ no_arv *buscarNoCaractere(no_arv *arv, char caractere);
 no_arv *buscarNoCodigo(no_arv *arv, char *codigo, int profundidade);
 
 /* Função de compactação de um arquivo com o algoritmo de Huffman. */
-void compactarArquivoHuffman(FILE *arqEntrada, FILE *arqSaida, no_arv *arv, int tamanho);
+int compactarArquivoHuffman(FILE *arqEntrada, FILE *arqSaida, no_arv *arv, int tamanho);
 
 #endif

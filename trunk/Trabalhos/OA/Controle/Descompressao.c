@@ -155,7 +155,7 @@ tab* remontarTabelaLempelZiv(FILE *arq) {
 
     comparador <<= 7;
 
-    while (numeroDeBitsTotal > 0) {
+    while ((numeroDeBitsTotal > 0) || (!feof(arq))) {
 	bitsIndice = 0;
 	bitsLetra = 0;
         for (i = 0; i < contadorBits; i++) {
@@ -219,6 +219,11 @@ tab* remontarTabelaLempelZiv(FILE *arq) {
         p1->letraRaiz = bitsLetra;
 	
         if (numeroDeBitsTotal < 8){
+	    if (termino == 1){
+		fread(&ultimosBits, sizeof(char), 1, arq); 
+		numeroDeBitsNoFinal = (int) ultimosBits;
+		numeroDeBitsTotal = numeroDeBitsTotal - numeroDeBitsNoFinal;
+	    }
             termino = 1;
         }
 

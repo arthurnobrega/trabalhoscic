@@ -8,6 +8,7 @@
 void mostrarTabelaLempelZiv(tab *tabelaLempelZiv);
 void mostrarTabelaHuffman(no_arv *arv, int tamanho);
 void mostrarCodigosHuffman(no_arv *arv);
+void mostrarRelatorio(int *nroBits, char *narq);
 
 /** Mostra o menu ao usuário. */
 void mostrarMenu() {
@@ -71,7 +72,12 @@ void mostrarMenu() {
 	    c_descomprimirArquivo(arqEntrada, arqSaida);
 	    printf("Arquivo descompactado com sucesso!\n");
 	} else if (!strcmp(comando, "RELAT")) {
-	    
+	    char arqEntrada[TAM_MAX];
+	    int *nroBits;
+
+	    scanf("%s", arqEntrada);
+	    nroBits = c_gerarRelatorio(arqEntrada);
+	    mostrarRelatorio(nroBits, arqEntrada);
 	} else if (strcmp(comando, "SAIR")){
 	    printf("Comando \"%s\" não encontrado.\n", comando);
 	}
@@ -89,7 +95,7 @@ void mostrarTabelaLempelZiv(tab *tabelaLempelZiv) {
     while (paux->prox != NULL) {
 	printf("%4d",paux->indice);
 	printf("%13d",paux->indiceAnterior);
-	printf("%15c\n",paux->letraRaiz);
+	printf("%15d\n",paux->letraRaiz);
 	paux = paux->prox;
     }
     conv = paux->letraRaiz;
@@ -98,6 +104,28 @@ void mostrarTabelaLempelZiv(tab *tabelaLempelZiv) {
 	printf("%13d",paux->indiceAnterior);
 	printf("%15d\n",paux->letraRaiz);
     }
+}
+
+void mostrarRelatorio(int *nroBits, char *narq) {
+    double conta;
+
+    printf("--------------------------------\n");
+    printf("Nome do Arquivo:      ");
+    puts(narq);
+    printf("\n");
+    printf("Tamanho Original:     ");
+    printf("%d bits\n", nroBits[0]);
+    printf("Tamanho HUFF:         ");
+    printf("%d bits\n", nroBits[1]);
+    printf("COMP HUFF:            ");
+    conta = (double) (100 * (1 - ((double)nroBits[1]/(double)nroBits[0])));
+    printf("%0.1f \%\n", conta);
+    printf("Tamanho LZ:           ");
+    printf("%d bits\n", nroBits[2]);
+    printf("COMP LZ:              ");
+    conta = (double) (100 * (1 - ((double)nroBits[2]/(double)nroBits[0])));
+    printf("%0.1f \%\n", conta);
+    printf("--------------------------------\n");
 }
 
 /* Mostra a tabela de Huffman na tela. */

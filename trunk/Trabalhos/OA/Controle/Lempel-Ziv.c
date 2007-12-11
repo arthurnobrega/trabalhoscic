@@ -114,7 +114,6 @@ int compactarLempelZiv(tab* pinicioTabela, FILE *arq) {
     fwrite(&numeroDeBitsTotal, sizeof(int),1,arq);
     putc('\n', arq);
     fwrite(&(p1)->letraRaiz, sizeof(char),1, arq);
-    printf("p1: %c\n", p1->letraRaiz);
     numeroDeBitsTotal = numeroDeBitsTotal + 8;
 
     char bitsAux = 0;

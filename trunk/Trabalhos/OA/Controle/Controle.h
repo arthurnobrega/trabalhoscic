@@ -14,7 +14,7 @@ no_arv *c_gerarArvoreHuffman(char *nomeArq, int *tamanho);
  * arv: ponteiro para a raiz da árvore de Huffman.
  * tamanho: ponteiro para um inteiro onde será armazenado o número de caracteres no texto.
 */
-void c_compactarHuffman(char *narqEntrada, char *narqSaida, no_arv *arv, int *tamanho);
+int c_compactarHuffman(char *narqEntrada, char *narqSaida, no_arv *arv, int *tamanho);
 
 /** Descomprimi o arquivo compactado tanto com Huffman quanto com Lempel-Ziv.
  * narqEntrada: nome do arquivo texto de entrada.
@@ -24,5 +24,7 @@ void c_descomprimirArquivo(char *narqEntrada, char *narqSaida);
 
 
 tab *c_criarTabelaLempelZiv(char* narqEntrada);
-void c_compactarLempelZiv(tab *pinicio, char* narqSaida);
+int c_compactarLempelZiv(tab *pinicio, char* narqSaida);
+
+int *c_gerarRelatorio(char* narqEntrada);
 #endif
