@@ -13,6 +13,8 @@ void c_descomprimirArquivo(char *narqEntrada, char *narqSaida) {
     if ((arqEntrada = fopen(narqEntrada, "rb")) != NULL) {
 	if ((arqSaida = fopen(narqSaida, "w")) != NULL) {
 	    descomprimir(arqEntrada, arqSaida);
+	    fclose(arqEntrada);
+	    fclose(arqSaida);
 	} else {
 	    
 	}
@@ -22,6 +24,7 @@ void c_descomprimirArquivo(char *narqEntrada, char *narqSaida) {
 
 }
 
+/** Coleta o número de bits do arquivo original, compactado com Huffman e com Lempel-Ziv. */
 int *c_gerarRelatorio(char* narqEntrada) {
     int tamanho = 0;
     no_arv *arv;

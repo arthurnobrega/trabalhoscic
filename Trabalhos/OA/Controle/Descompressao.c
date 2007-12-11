@@ -24,7 +24,6 @@ void descomprimir(FILE *arqEntrada, FILE *arqSaida) {
     } else if (ch == 'L') {
 	ch = fgetc(arqEntrada);
 	pinicio = remontarTabelaLempelZiv(arqEntrada);
-	printf("AAAAAAAAAAAAAAAAAAAAAAAAA");
 	escreverArquivoLZ(pinicio, arqSaida);
     }
 }
@@ -139,7 +138,6 @@ tab* remontarTabelaLempelZiv(FILE *arq) {
     int termino = 0;
 
     fread(&numeroDeBitsTotal, sizeof(int), 1, arq);
-    printf("numero total: %d\n", numeroDeBitsTotal);
     getc(arq);
 
     pinicioTabela->ant = NULL;
@@ -148,7 +146,6 @@ tab* remontarTabelaLempelZiv(FILE *arq) {
     pinicioTabela->indice = indice;
 
     fread(&pinicioTabela->letraRaiz, sizeof(char), 1, arq);
-    printf("pinicio: %c\n",pinicioTabela->letraRaiz );
     numeroDeBitsTotal = numeroDeBitsTotal - 8;
     p1 = pinicioTabela;
 
@@ -235,13 +232,6 @@ tab* remontarTabelaLempelZiv(FILE *arq) {
         }
     }
 
-    p1 = pinicioTabela;
-    while (p1->prox != NULL) {
-	printf("%d ", p1->indice);
-	printf("%d ", p1->indiceAnterior);
-	printf("%c\n", p1->letraRaiz);
-	p1 = p1->prox;
-    }
     return pinicioTabela;
 }
 
