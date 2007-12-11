@@ -107,7 +107,7 @@ void mostrarTabelaLempelZiv(tab *tabelaLempelZiv) {
 }
 
 void mostrarRelatorio(int *nroBits, char *narq) {
-    double conta;
+    float contaHuff, contaLZ;
 
     printf("--------------------------------\n");
     printf("Nome do Arquivo:      ");
@@ -118,13 +118,15 @@ void mostrarRelatorio(int *nroBits, char *narq) {
     printf("Tamanho HUFF:         ");
     printf("%d bits\n", nroBits[1]);
     printf("COMP HUFF:            ");
-    conta = (double) (100 * (1 - ((double)nroBits[1]/(double)nroBits[0])));
-    printf("%0.1f \%\n", conta);
+    contaHuff = (double) (100 * (1 - ((double)nroBits[1]/(double)nroBits[0])));
+    printf("%0.1f \%\n", contaHuff);
     printf("Tamanho LZ:           ");
     printf("%d bits\n", nroBits[2]);
     printf("COMP LZ:              ");
-    conta = (double) (100 * (1 - ((double)nroBits[2]/(double)nroBits[0])));
-    printf("%0.1f \%\n", conta);
+    contaLZ = (double) (100 * (1 - ((double)nroBits[2]/(double)nroBits[0])));
+    printf("%0.1f \%\n", contaLZ);
+    printf("\nMelhor Algorítmo:     ");
+    (contaHuff > contaLZ) ? printf("Huffman\n") : printf("Lempel-Ziv\n");
     printf("--------------------------------\n");
 }
 

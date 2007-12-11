@@ -99,6 +99,7 @@ tab *c_criarTabelaLempelZiv(char* narqEntrada) {
 	    elementoTab->indiceAnterior = anterior;
 	    inicioTabela = adicionarNaLista(inicioTabela, elementoTab);
 	}
+	
     } else {
 	
     }

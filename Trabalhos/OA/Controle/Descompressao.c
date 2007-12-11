@@ -8,11 +8,13 @@ no_arv *lerTabelaHuffman(FILE *arqEntrada);
 void reconstruirArvoreHuffman(no_arv *arv, char caractere, char *codigo, int profundidade);
 void escreverArquivoTexto(FILE *arqEntrada, FILE *arqSaida, no_arv *arv);
 tab* remontarTabelaLempelZiv(FILE *arq);
+void escreverArquivoLZ(tab *pinicioTabela, FILE *arq);
 
 /** Função para descomprimir arquivos compactados com Huffman ou Lempel-Ziv. */
 void descomprimir(FILE *arqEntrada, FILE *arqSaida) {
     char ch;
     no_arv *arv;
+    tab *pinicio;
 
     ch = fgetc(arqEntrada);
     if (ch == 'H') {
@@ -21,10 +23,10 @@ void descomprimir(FILE *arqEntrada, FILE *arqSaida) {
 	escreverArquivoTexto(arqEntrada, arqSaida, arv);
     } else if (ch == 'L') {
 	ch = fgetc(arqEntrada);
-	remontarTabelaLempelZiv(arqEntrada);
+	pinicio = remontarTabelaLempelZiv(arqEntrada);
+	printf("AAAAAAAAAAAAAAAAAAAAAAAAA");
+	escreverArquivoLZ(pinicio, arqSaida);
     }
-    fclose(arqEntrada);
-    fclose(arqSaida);
 }
 
 /* Esta função lê a tabela(cabeçalho) do arquivo compactado com o algoritmo de Huffman e já vai reconstruindo a árvore a cada caractere e código encontrado. */
@@ -155,7 +157,7 @@ tab* remontarTabelaLempelZiv(FILE *arq) {
 
     comparador <<= 7;
 
-    while ((numeroDeBitsTotal > 0) || (!feof(arq))) {
+    while ((numeroDeBitsTotal > 0) && (!feof(arq))) {
 	bitsIndice = 0;
 	bitsLetra = 0;
         for (i = 0; i < contadorBits; i++) {
@@ -233,13 +235,46 @@ tab* remontarTabelaLempelZiv(FILE *arq) {
         }
     }
 
-    fclose(arq);
     p1 = pinicioTabela;
-    while (p1 != NULL) {
+    while (p1->prox != NULL) {
 	printf("%d ", p1->indice);
 	printf("%d ", p1->indiceAnterior);
 	printf("%c\n", p1->letraRaiz);
 	p1 = p1->prox;
     }
     return pinicioTabela;
+}
+
+void escreverArquivoLZ(tab *pinicioTabela, FILE *arq) {
+    tab *p1 = NULL, *p2 = NULL;
+    int indiceAnterior = 0;
+    int terminou = 0, cont = 0, i = 0;
+    char *str = NULL;
+
+    p1 = pinicioTabela;
+    p2 = p1;
+    while (p1 != NULL) {
+	cont++;
+	str = (char *) realloc(str, cont * sizeof(char));
+	str[cont - 1] = p1->letraRaiz;
+	if ((indiceAnterior = p1->indiceAnterior) != 0) {
+	    while ((p2 != NULL) && (!terminou)) {
+		p2 = p2->ant;
+		if (p2->indice == indiceAnterior) {
+		    cont++;
+		    str = (char *) realloc(str, cont * sizeof(char));
+		    str[cont - 1] = p2->letraRaiz;
+		    indiceAnterior = p2->indiceAnterior;
+		    if (indiceAnterior == 0) {
+			terminou = 1;
+		    }
+		}
+	    }
+	    for (i = cont; i >= 0; i--) {
+		fputc(str[i], arq);
+	    }
+	}
+	p1 = p1->prox;
+    }
+    
 }
