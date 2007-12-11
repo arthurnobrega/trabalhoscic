@@ -7,7 +7,7 @@
 reg* criarArvore(int* maiorContador, FILE* arq);
 int corrigirBytes(reg p, int* maiorContador, reg* p2, int *bytes);
 reg *buscarNaArvore(reg *pinicio, int cont, reg *p2, int *anterior);
-void compactarLempelZiv(tab* pinicioTabela, FILE *arq);
+int compactarLempelZiv(tab* pinicioTabela, FILE *arq);
 tab *adicionarNaLista(tab *pinicio, tab *registro);
 
 #endif
