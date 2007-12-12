@@ -2,7 +2,7 @@
 
 Autores do programa:
 Arthur Thiago Barbosa Nobrega - 06/31205
-Davi Fantino - 06/.....
+Davi Fantino da Silva - 06/40832
 
 Versão 1.0
 Data: 11/12/2007
@@ -13,7 +13,7 @@ Descrição: Este programa tem por objetivo dispor ao usuário compactar e desco
 
 #include "Visualizacao/Visualizacao.h"
 
-/* Executa o programa. */
+/* Chama a função de mostrar o menu na tela para o usuário. */
 int main() {
     mostrarMenu();
     return 0;

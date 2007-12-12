@@ -1,3 +1,16 @@
+/** Programa de Compactação e Descompactação utilizando Huffman e Lempel-Ziv.
+
+Autores do programa:
+Arthur Thiago Barbosa Nobrega - 06/31205
+Davi Fantino da Silva - 06/40832
+
+Versão 1.0
+Data: 11/12/2007
+Compilador: gcc 4.1.2 20061115 (prerelease) (Debian 4.1.1-21)
+
+Descrição: Este programa tem por objetivo dispor ao usuário compactar e descompactar arquivos utilizando Huffman e Lempel-Ziv. O usuário também tem a opção de simplesmente mostrar a tabela de Huffman do arquivo fornecido ou o dicionário de Lempel-Ziv, além de poder comparar qual o melhor algorítmo para compactar aquele determinado arquivo.
+*/
+
 #include "Huffman.h"
 #include <stdlib.h>
 #include <string.h>
@@ -27,11 +40,11 @@ no_arv *construirLista(FILE *arq, int *tamanho) {
     paux->esq = NULL;
     paux->dir = NULL;
     *tamanho = 1;
-    /* Adiciona os outros elementos à lista. */
+    /** Adiciona os outros elementos à lista. */
     while ((ch = fgetc(arq)) != EOF) {
 	paux = pinicio;
 	while (paux != NULL) {
-	    /* Se o caractere já existir na lista, soma 1 na frequência. */
+	    /** Se o caractere já existir na lista, soma 1 na frequência. */
 	    if (paux->caractere == ch) {
 		paux->frequencia += 1;
 		achou = 1;
@@ -40,7 +53,7 @@ no_arv *construirLista(FILE *arq, int *tamanho) {
 	    pfim = paux;
 	    paux = paux->prox;
 	}
-	/* Se é o caractere não existir na lista, o adiciona. */
+	/** Se é o caractere não existir na lista, o adiciona. */
 	if (achou == 0) {
 	    paux = (no_arv *) calloc(1, sizeof(no_arv));
 	    paux->caractere = ch;
@@ -59,7 +72,7 @@ no_arv *construirLista(FILE *arq, int *tamanho) {
     return pinicio;
 }
 
-/* Função que ordena a lista passada como parâmetro por caractere. */
+/** Função que ordena a lista passada como parâmetro por caractere. */
 no_arv *ordenarLista(no_arv *pinicio, int tamanho) {
     int i = 0, j = 0;
     no_arv *paux, *paux2;
@@ -75,6 +88,11 @@ no_arv *ordenarLista(no_arv *pinicio, int tamanho) {
 		    paux->ant->prox = paux2;
 		}
 		if (paux2->prox != NULL) {
+		  
+/** Constroi a lista de caracteres com as respectivas frequências. 
+		     * arq: arquivo texto de entrada, onde está o texto original.
+		     * tamanho: ponteiro para um inteiro onde será armazenado o número de caracteres no texto.
+ */
 		    paux2->prox->ant = paux;
 		}
 		paux->prox = paux2->prox;
@@ -91,6 +109,15 @@ no_arv *ordenarLista(no_arv *pinicio, int tamanho) {
 }
 
 /** Constroi a árvore de acordo com o algoritmo de Huffman. */
+/** Constroi a lista de caracteres com as respectivas frequências. 
+ * arq: arquivo texto de entrada, onde está o texto original.
+ * tamanho: ponteiro para um inteiro onde será armazenado o número de caracteres no texto.
+ */
+
+/** Constroi a lista de caracteres com as respectivas frequências. 
+ * arq: arquivo texto de entrada, onde está o texto original.
+ * tamanho: ponteiro para um inteiro onde será armazenado o número de caracteres no texto.
+ */
 no_arv *construirArvore(no_arv *pinicio, int tamanho) {
     no_arv *paux, *pnovo;
 
@@ -187,7 +214,13 @@ int compactarArquivoHuffman(FILE *arqEntrada, FILE *arqSaida, no_arv *arv, int t
     return nroBits;
 }
 
-/* Grava no arquivo a tabela(cabeçalho) necessária para a descompactação. */
+/** Grava no arquivo a tabela(cabeçalho) necessária para a descompactação. */
+
+/** Constroi a lista de caracteres com as respectivas frequências. 
+ * arq: arquivo texto de entrada, onde está o texto original.
+ * tamanho: ponteiro para um inteiro onde será armazenado o número de caracteres no texto.
+ */
+
 void gravarTabelaCodigos(FILE *arqSaida, no_arv *arv) {
     if (arv->esq == NULL) {
 	int profundidade, i;
@@ -204,7 +237,7 @@ void gravarTabelaCodigos(FILE *arqSaida, no_arv *arv) {
     }
 }
 
-/* Grava os códigos dos caracteres utilizando-se de um buffer. */
+/** Grava os códigos dos caracteres utilizando-se de um buffer. */
 int gravarCodificacao(FILE *arqEntrada, FILE *arqSaida, no_arv *arv) {
     char ch;
     no_arv *no;
@@ -218,6 +251,11 @@ int gravarCodificacao(FILE *arqEntrada, FILE *arqSaida, no_arv *arv) {
 	    buffer <<= 1;
 	    if (no->codigo[i] == '1') {
 		buffer |= 1;
+/** Constroi a lista de caracteres com as respectivas frequências. 
+		 * arq: arquivo texto de entrada, onde está o texto original.
+		 * tamanho: ponteiro para um inteiro onde será armazenado o número de caracteres no texto.
+ */
+
 	    }
 	    tamanhoBuffer++;
 	    if (tamanhoBuffer == 8) {

@@ -1,3 +1,16 @@
+/** Programa de Compactação e Descompactação utilizando Huffman e Lempel-Ziv.
+
+Autores do programa:
+Arthur Thiago Barbosa Nobrega - 06/31205
+Davi Fantino da Silva - 06/40832
+
+Versão 1.0
+Data: 11/12/2007
+Compilador: gcc 4.1.2 20061115 (prerelease) (Debian 4.1.1-21)
+
+Descrição: Este programa tem por objetivo dispor ao usuário compactar e descompactar arquivos utilizando Huffman e Lempel-Ziv. O usuário também tem a opção de simplesmente mostrar a tabela de Huffman do arquivo fornecido ou o dicionário de Lempel-Ziv, além de poder comparar qual o melhor algorítmo para compactar aquele determinado arquivo.
+*/
+
 #include "Visualizacao.h"
 #include <stdio.h>
 #include <string.h>
@@ -25,7 +38,6 @@ void mostrarMenu() {
 
     while (strcmp(comando, "SAIR")) {
 	printf("> ");
-	//lê toda a linha: scanf("%[^\n]",comando);
 	scanf("%s",comando);
 
 	if (!strcmp(comando, "TAB_HUFF")) {
@@ -45,14 +57,15 @@ void mostrarMenu() {
 	    scanf("%s", arqEntrada);
 	    scanf("%s", arqSaida);
 	    c_compactarHuffman(arqEntrada, arqSaida, arv, &tamanho);
-	    printf("O Arquivo \"%s\" foi compactado como \"%s\" utilizando Huffman!\n", arqEntrada, arqSaida);
 	} else if (!strcmp(comando, "DIC_LZ")) {
 	    char arqEntrada[TAM_MAX];
 	    scanf("%s", arqEntrada);
 	    tab* tabelaLZ = NULL;
 
 	    tabelaLZ = c_criarTabelaLempelZiv(arqEntrada);
-	    mostrarTabelaLempelZiv(tabelaLZ);
+	    if (tabelaLZ != NULL) {
+	       mostrarTabelaLempelZiv(tabelaLZ);
+	    }
 	    // Limpa a memória.
 	    free(tabelaLZ);
 	} else if (!strcmp(comando, "LZ")) {
@@ -62,8 +75,9 @@ void mostrarMenu() {
 	    scanf("%s", arqEntrada);
 	    scanf("%s", arqSaida);
 	    tabelaLZ = c_criarTabelaLempelZiv(arqEntrada);
-	    c_compactarLempelZiv(tabelaLZ, arqSaida);
-	    printf("O Arquivo \"%s\" foi compactado como \"%s\" utilizando Lempel-Ziv!\n", arqEntrada, arqSaida);
+	    if (tabelaLZ != NULL) {
+	       c_compactarLempelZiv(tabelaLZ, arqSaida);
+	    }
 	    // Limpa a memória.
 	    free(tabelaLZ);
 	} else if (!strcmp(comando, "DESC")) {
@@ -72,7 +86,6 @@ void mostrarMenu() {
 	    scanf("%s", arqEntrada);
 	    scanf("%s", arqSaida);
 	    c_descomprimirArquivo(arqEntrada, arqSaida);
-	    printf("O Arquivo \"%s\" foi descompactado como \"%s\"!\n", arqEntrada, arqSaida);
 	} else if (!strcmp(comando, "RELAT")) {
 	    char arqEntrada[TAM_MAX];
 	    int *nroBits;
@@ -104,7 +117,7 @@ void mostrarTabelaLempelZiv(tab *tabelaLempelZiv) {
 	paux = paux->prox;
     }
     conv = paux->letraRaiz;
-    if (conv != 255) {
+    if (conv != EOF) {
 	printf("%7d",paux->indice);
 	printf("%13d",paux->indiceAnterior);
 	printf("%15d\n",paux->letraRaiz);
@@ -112,6 +125,7 @@ void mostrarTabelaLempelZiv(tab *tabelaLempelZiv) {
     printf("----------------------------------------\n\n");
 }
 
+/* Mostra o relatório na tela. */
 void mostrarRelatorio(int *nroBits, char *narq) {
     float contaHuff, contaLZ;
 

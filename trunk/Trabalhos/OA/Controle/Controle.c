@@ -1,10 +1,24 @@
+/** Programa de Compactação e Descompactação utilizando Huffman e Lempel-Ziv.
+
+Autores do programa:
+Arthur Thiago Barbosa Nobrega - 06/31205
+Davi Fantino da Silva - 06/40832
+
+Versão 1.0
+Data: 11/12/2007
+Compilador: gcc 4.1.2 20061115 (prerelease) (Debian 4.1.1-21)
+
+Descrição: Este programa tem por objetivo dispor ao usuário compactar e descompactar arquivos utilizando Huffman e Lempel-Ziv. O usuário também tem a opção de simplesmente mostrar a tabela de Huffman do arquivo fornecido ou o dicionário de Lempel-Ziv, além de poder comparar qual o melhor algorítmo para compactar aquele determinado arquivo.
+*/
+
 #include "Controle.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "Huffman.h"
 #include "Descompressao.h"
 #include "Lempel-Ziv.h"
-#include "Relatorio.h"
+
+int contarNroBitsArquivo(FILE *arq);
 
 /** Descomprimi o arquivo compactado tanto com Huffman quanto com Lempel-Ziv. */
 void c_descomprimirArquivo(char *narqEntrada, char *narqSaida) {
@@ -15,13 +29,13 @@ void c_descomprimirArquivo(char *narqEntrada, char *narqSaida) {
 	    descomprimir(arqEntrada, arqSaida);
 	    fclose(arqEntrada);
 	    fclose(arqSaida);
+	    printf("O Arquivo \"%s\" foi descompactado como \"%s\"!\n", narqEntrada, narqSaida);
 	} else {
-	    
+	    printf("O arquivo texto \"%s\" não pôde ser aberto!\n", narqEntrada);
 	}
     } else {
-	
+	printf("O arquivo binário \"%s\" não pôde ser aberto!\n", narqSaida);
     }
-
 }
 
 /** Coleta o número de bits do arquivo original, compactado com Huffman e com Lempel-Ziv. */
@@ -35,13 +49,15 @@ int *c_gerarRelatorio(char* narqEntrada) {
     nroBits = calloc(3, sizeof(int));
     if ((arqEntrada = fopen(narqEntrada, "r")) != NULL) {
         nroBits[0] = contarNroBitsArquivo(arqEntrada);
+	
+	arv = c_gerarArvoreHuffman(narqEntrada, &tamanho);
+	nroBits[1]= c_compactarHuffman(narqEntrada, "huffman", arv, &tamanho);
+	
+	tabelaLZ = c_criarTabelaLempelZiv(narqEntrada);
+	nroBits[2] = c_compactarLempelZiv(tabelaLZ, "lempelziv");
+    } else {
+	printf("O arquivo texto \"%s\" não pôde ser aberto!\n", narqEntrada);
     }
-
-    arv = c_gerarArvoreHuffman(narqEntrada, &tamanho);
-    nroBits[1]= c_compactarHuffman(narqEntrada, "huffman", arv, &tamanho);
-
-    tabelaLZ = c_criarTabelaLempelZiv(narqEntrada);
-    nroBits[2] = c_compactarLempelZiv(tabelaLZ, "lempelziv");
 
     return nroBits;
 }
@@ -59,7 +75,7 @@ no_arv *c_gerarArvoreHuffman(char *nomeArq, int *tamanho) {
 
 	return arv;
     } else {
-	
+	printf("O arquivo texto \"%s\" não pôde ser aberto!\n", nomeArq);
     }
 
     return NULL;
@@ -74,47 +90,53 @@ int c_compactarHuffman(char *narqEntrada, char *narqSaida, no_arv *arv, int *tam
 	if ((arqSaida = fopen(narqSaida, "wb")) != NULL) {
 	    arv = c_gerarArvoreHuffman(narqEntrada, tamanho);
 	    nroBits = compactarArquivoHuffman(arqEntrada, arqSaida, arv, *tamanho);
+	    printf("O Arquivo \"%s\" foi compactado como \"%s\" utilizando Huffman!\n", narqEntrada, narqSaida);
 	} else {
-	    
+	    printf("O arquivo binário \"%s\" não pôde ser aberto!\n", narqSaida);
 	}
     } else {
-	
+	printf("O arquivo texto \"%s\" não pôde ser aberto!\n", narqEntrada);
     }
     return nroBits;
 }
 
-/*CHAMA TODAS AS OUTRAS FUNCOES QUE TRABALHARAO DESDE A GERACAO, 
-ATE A GRAVACAO DA TABELA.*/
+/** Chama todas as outras funções que trabalharão desde a geração até a gravação da tabela. */
 tab *c_criarTabelaLempelZiv(char* narqEntrada) {
-    int maiorIndice = 0, cont = 0, anterior = 0;
-    reg *pinicio = NULL, *p2 = NULL, *paux = NULL;
-    tab *inicioTabela = NULL, *elementoTab = NULL;
+    tab *inicioTabela = NULL;
     FILE *arqEntrada = NULL;
 
     if ((arqEntrada = fopen(narqEntrada, "r")) != NULL) {
-        pinicio = criarArvore(&maiorIndice, arqEntrada);
-	for (cont = 1; cont <= maiorIndice; cont++) {
-	    /*LEMPEL-ZIV.H*/
-	    paux = buscarNaArvore(pinicio, cont, p2,&anterior);
-	    elementoTab = calloc(1, sizeof(tab));
-	    elementoTab->indice = cont;
-	    elementoTab->letraRaiz = paux->letraRaiz;
-	    elementoTab->indiceAnterior = anterior;
-	    inicioTabela = adicionarNaLista(inicioTabela, elementoTab);
-	}
-	
+        inicioTabela = criarArvoreLista(arqEntrada);
     } else {
-	
+	printf("O arquivo texto \"%s\" não pôde ser aberto!\n", narqEntrada);
+	return NULL;
     }
+
     return inicioTabela;
 }
 
+/** Compacta o arquivo com o algoritmo de Lempel-Ziv. */
 int c_compactarLempelZiv(tab *pinicio, char* narqSaida) {
     FILE *arqSaida;
-    int nroBits;
+    int nroBits = 0;
 
     if ((arqSaida = fopen(narqSaida, "w")) != NULL) {
         nroBits = compactarLempelZiv(pinicio, arqSaida);
+	printf("O Arquivo foi compactado como \"%s\" utilizando Lempel-Ziv!\n", narqSaida);
+    } else {
+	printf("O arquivo binário \"%s\" não pôde ser aberto!\n", narqSaida);
+    }
+
+    return nroBits;
+}
+
+int contarNroBitsArquivo(FILE *arq) {
+    char ch;
+    int nroBits = 0;
+    ch = fgetc(arq);
+    while (!feof(arq)) {
+	nroBits += 8;
+	ch = fgetc(arq);
     }
 
     return nroBits;

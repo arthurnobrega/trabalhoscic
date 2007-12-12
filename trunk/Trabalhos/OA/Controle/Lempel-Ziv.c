@@ -1,30 +1,51 @@
+/** Programa de Compactação e Descompactação utilizando Huffman e Lempel-Ziv.
+
+Autores do programa:
+Arthur Thiago Barbosa Nobrega - 06/31205
+Davi Fantino da Silva - 06/40832
+
+Versão 1.0
+Data: 11/12/2007
+Compilador: gcc 4.1.2 20061115 (prerelease) (Debian 4.1.1-21)
+
+Descrição: Este programa tem por objetivo dispor ao usuário compactar e descompactar arquivos utilizando Huffman e Lempel-Ziv. O usuário também tem a opção de simplesmente mostrar a tabela de Huffman do arquivo fornecido ou o dicionário de Lempel-Ziv, além de poder comparar qual o melhor algorítmo para compactar aquele determinado arquivo.
+*/
+
+#include "Lempel-Ziv.h"
 #include <stdlib.h>
 #include <string.h>
 #include "../Tipos.h"
 #include "Controle.h"
-#include "../Persistencia/Arquivos.h"
 
-/*A PARTIR DE UM ARQUIVO TEXTO, ESSA FUNCAO CRIA UMA ARVORE GENERICA,
+/**A PARTIR DE UM ARQUIVO TEXTO, ESSA FUNCAO CRIA UMA ARVORE GENERICA,
 IRMAOS(PROX) E FILHAS, CADA FILHA REPRESENTADO UM CHAR*/
-reg* criarArvore(int* maiorContador, FILE* arq) {
+tab* criarArvoreLista(FILE* arq) {
 
     char caracter = 0;
     reg *pinicio = NULL;
     reg *p1 = NULL;
+    reg *pPai = NULL;
     int achou = 0;
     int acabouArvore = 0;
     int fimLinha = 0;
-    int contadorIndice = *maiorContador;
+    int contadorIndice = 0;
+    tab *pinicioTab = NULL, *pfimTab = NULL, *elementoTab = NULL;
 
     while((caracter = getc(arq)) != EOF){
         if(pinicio == NULL){
-            pinicio = calloc(1,sizeof(reg));
+	    pinicio = calloc(1,sizeof(reg));
             pinicio->prox = NULL;
             pinicio->filhas = NULL;
             pinicio->letraRaiz = caracter;
             contadorIndice = (contadorIndice + 1);
             pinicio->indice = contadorIndice;
             p1 = pinicio;
+	    elementoTab = calloc(1, sizeof(tab));
+	    elementoTab->indice = p1->indice;
+	    elementoTab->letraRaiz = p1->letraRaiz;
+	    elementoTab->indiceAnterior = 0;
+	    pinicioTab = adicionarNaLista(pinicioTab, elementoTab);
+	    pfimTab = pinicioTab;
         }else{
             while(acabouArvore == 0){
                 while ((achou == 0)&&(fimLinha == 0)){
@@ -48,11 +69,21 @@ reg* criarArvore(int* maiorContador, FILE* arq) {
                     p1->indice = contadorIndice;
                     p1->prox = NULL;
                     p1->filhas = NULL;
-                }else{
+		    elementoTab = calloc(1, sizeof(tab));
+		    elementoTab->indice = p1->indice;
+		    elementoTab->letraRaiz = p1->letraRaiz;
+		    if (pPai == NULL) {
+		      elementoTab->indiceAnterior = 0;
+		    } else {
+			elementoTab->indiceAnterior = pPai->indice;
+		    }
+		    pfimTab = adicionarNaLista(pfimTab, elementoTab);
+                } else {
                     caracter = getc(arq);
-                    if (p1->filhas != NULL){
+		    pPai = p1;
+                    if (p1->filhas != NULL) {
                         p1 = p1->filhas;
-                    } else{
+                    } else {
                         acabouArvore = 1;
                         p1->filhas = calloc(1,sizeof(reg));
                         p1 = p1->filhas;
@@ -61,21 +92,25 @@ reg* criarArvore(int* maiorContador, FILE* arq) {
                         p1->indice = contadorIndice;
                         p1->filhas = NULL;
                         p1->prox = NULL;
+			elementoTab = calloc(1, sizeof(tab));
+			elementoTab->indice = p1->indice;
+			elementoTab->letraRaiz = p1->letraRaiz;
+			elementoTab->indiceAnterior = pPai->indice;
+			pfimTab = adicionarNaLista(pfimTab, elementoTab);
                     }
                     achou = 0;
                 }
             }
+	    pPai = NULL;
             acabouArvore = 0;
             p1 = pinicio;
         }
 
     }
-    *maiorContador = contadorIndice;
-    return pinicio;
+    return pinicioTab;
 }
 
-
-/*FAZ UMA BUSCA RECURSIVA NA ARVORE EM BUSCA DO INDICE EM QUESTAO, PERMITINDO A CONSTRUCAO DA LISTA QUE GERARA A TABELA*/
+/**FAZ UMA BUSCA RECURSIVA NA ARVORE EM BUSCA DO INDICE EM QUESTAO, PERMITINDO A CONSTRUCAO DA LISTA QUE GERARA A TABELA*/
 reg *buscarNaArvore(reg *pinicio, int cont, reg *p2, int *anterior) {
 
     reg *p1 = NULL;
@@ -103,7 +138,10 @@ reg *buscarNaArvore(reg *pinicio, int cont, reg *p2, int *anterior) {
     return p1;
 }
 
-
+/** Constroi a lista de caracteres com as respectivas frequências. 
+ * arq: arquivo texto de entrada, onde está o texto original.
+ * tamanho: ponteiro para um inteiro onde será armazenado o número de caracteres no texto.
+ */
 int compactarLempelZiv(tab* pinicioTabela, FILE *arq) {
 
     tab* p1 = pinicioTabela;
@@ -112,6 +150,7 @@ int compactarLempelZiv(tab* pinicioTabela, FILE *arq) {
     putc('L',arq);
     putc('\n', arq);
     fwrite(&numeroDeBitsTotal, sizeof(int),1,arq);
+
     putc('\n', arq);
     fwrite(&(p1)->letraRaiz, sizeof(char),1, arq);
     numeroDeBitsTotal = numeroDeBitsTotal + 8;
@@ -135,7 +174,12 @@ int compactarLempelZiv(tab* pinicioTabela, FILE *arq) {
                 numeroDeBitsTotal = numeroDeBitsTotal + cont;
                 cont = 0;
                 fwrite(&buffer, sizeof(char), 1, arq);
-                buffer = 0;
+       
+/** Constroi a lista de caracteres com as respectivas frequências. 
+		 * arq: arquivo texto de entrada, onde está o texto original.
+		 * tamanho: ponteiro para um inteiro onde será armazenado o número de caracteres no texto.
+ */
+		buffer = 0;
             }                
         }
         bitsAux = (char)p1->letraRaiz;
@@ -172,19 +216,15 @@ int compactarLempelZiv(tab* pinicioTabela, FILE *arq) {
     return numeroDeBitsTotal;
 }
 
-tab *adicionarNaLista(tab *pinicio, tab *registro) {
-    tab *paux = NULL;
+tab *adicionarNaLista(tab *pfim, tab *registro) {
 
-    if (pinicio == NULL) {
-	pinicio = registro;
+    if (pfim == NULL) {
+	pfim = registro;
     } else {
-	paux = pinicio;
-	while (paux->prox != NULL) {
-	    paux = paux->prox;
-	}
-	paux->prox = registro;
-	registro->ant = paux;
+	pfim->prox = registro;
+	registro->ant = pfim;
+	pfim = pfim->prox;
     }
 
-    return pinicio;
+    return pfim;
 }
